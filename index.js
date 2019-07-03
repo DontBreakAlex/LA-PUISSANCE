@@ -43,18 +43,18 @@ function play(message, msg) {
 }
 
 function youtube(message, url) {
-	console.log(message);
 	let voiceChannel = message.member.voiceChannel;
 	if (voiceChannel == undefined) {
 		message.channel.send(`${message.author} n'est pas dans un salon vocal !`);
 		return;
 	}
 	voiceChannel.join().then(async connection => {
+		console.log(bot);
 		let disp = connection.playOpusStream(await ytdl(url));
 		message.channel.send(`Lecture de ${url} en cours !`);
 		disp.on('end', () => {
 			message.channel.send(`Lecture finie !`);
-			voiceChannel.leave();
+			message.guild.members.get(bot.user.id).voiceChannel.leave();
 		})
 	})
 }
@@ -82,9 +82,7 @@ function stoprick(message) {
 	let msg = message.content.split(' ');
 	let user = msg[2].replace(/\D/g,'');
 	if (trolling.has(user)) {
-		let stopper = trolling.get(user);
-		stopper[0].end();
-		stopper[1].leave();
+		trolling.get(user).end();
 		message.channel.send("C'est finit !")
 	}
 	else message.channel.send(`${message.guild.members.get(user)} n'est pas en train de se faire troller !`)
@@ -100,10 +98,10 @@ function rickroll(message) {
 	}
 	voiceChannel.join().then(connection => {
 		let disp = connection.playFile('./ressources/rickroll.webm');
-		trolling.set(user, [disp, voiceChannel]);
+		trolling.set(user, disp);
 		message.channel.send("C'est parti !")
 		disp.on('end', (end) => {
-			voiceChannel.leave();
+			message.guild.members.get(bot.user.id).voiceChannel.leave();
 		})
 	});
 }
