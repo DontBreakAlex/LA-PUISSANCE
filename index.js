@@ -3,19 +3,20 @@ const bot = new Discord.Client();
 const config = require('config');
 const token = config.get('token');
 
-
+trolling = new Map();
 bot.on('ready', () => {
 	console.log('Bot is UP !')
 	var channel = bot.channels.filter(chan => {
-		if (chan.type == 'text')
+		if (chan.type == 'voice')
 			return 1;
 		else
 			return 0;
-	}).first();
+	})/* .first() */;
+	// channel.get('208962998033711104').join();
+	// setTimeout(() => {channel.get('246938049810923521').join();}, 5000);
 	// channel.send('LA PUISSANCE est en ligne !');
 	bot.user.setPresence('online');
 	bot.user.setActivity('être plus puissant', {type: 'PLAYING'});
-	// console.log(bot.users);
 })
 
 bot.on('message', message => {
@@ -25,8 +26,9 @@ bot.on('message', message => {
 		switch (msg[1]) {
 			case 'test': message.channel.send(`Bravo ${message.author}, le test a REUSSI !`); break;
 			case 'norris': message.channel.send(`Chuck Norris est contre les radars automatiques, ça l'éblouie quand il fait du vélo.`); break;
-			case 'calcule': calc(msg, message);
-			case 'a': rickroll(message);
+			case 'calcule': calc(msg, message); break;
+			case 'rickroll': rickroll(message); break;
+			case 'stoprick': stoprick(message); break;
 		}
 		// console.log(message);
 	}
@@ -40,24 +42,44 @@ function calc(msg, message) {
 		message.channel.send(`Il me faut des chiffres !`);
 	else {
 		switch (msg[3]) {
-			case '+': message.channel.send(`${a}+${b} = ${a+b}`); break;
-			case '-': message.channel.send(`${a}-${b} = ${a-b}`); break;
-			case '/': message.channel.send(`${a}/${b} = ${a/b}`); break;
-			case '*': message.channel.send(`${a}*${b} = ${a*b}`); break;
-			case '%': message.channel.send(`${a}%${b} = ${a%b}`); break;
-			case '^': message.channel.send(`${a}^${b} = ${a**b}`); break;
+			case '+': message.channel.send(`${a} + ${b} = ${a+b}`); break;
+			case '-': message.channel.send(`${a} - ${b} = ${a-b}`); break;
+			case '/': message.channel.send(`${a} / ${b} = ${a/b}`); break;
+			case '*': message.channel.send(`${a} * ${b} = ${a*b}`); break;
+			case '%': message.channel.send(`${a} % ${b} = ${a%b}`); break;
+			case '^': message.channel.send(`${a} ^ ${b} = ${a**b}`); break;
 			default : message.channel.send(`C'est quoi cette opération de mort ? Je connais pas !`)
 		}
 	}
 }
 
+function stoprick(message) {
+	let msg = message.content.split(' ');
+	let user = msg[2].replace(/\D/g,'');
+	if (trolling.has(user)) {
+		let stopper = trolling.get(user);
+		stopper[0].end();
+		stopper[1].leave();
+		message.channel.send("C'est finit !")
+	}
+	else message.channel.send(`${message.guild.members.get(user)} n'est pas en train de se faire troller !`)
+}
+
 function rickroll(message) {
 	let msg = message.content.split(' ');
-	let user = msg[2].slice(2,20);
-	let trolluser = message.guild.members.get(user);
-	console.log(trolluser);
-	trolluser.voiceChannel.join().then(() => {
-		setTimeout(() => {trolluser.voiceChannel.leave();} , 2000);
+	let user = msg[2].replace(/\D/g,'');
+	let voiceChannel = message.guild.members.get(user).voiceChannel;
+	if (voiceChannel == undefined) {
+		message.channel.send(`${message.guild.members.get(user)} n'est pas dans un salon vocal !`)
+		return ;
+	}
+	voiceChannel.join().then(connection => {
+		let disp = connection.playFile('./ressources/rickroll.webm');
+		trolling.set(user, [disp, voiceChannel]);
+		message.channel.send("C'est parti !")
+		disp.on('end', (end) => {
+			voiceChannel.leave();
+		})
 	});
 }
 
