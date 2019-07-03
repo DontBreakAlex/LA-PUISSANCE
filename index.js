@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const config = require('config');
+const ytdl = require('ytdl-core-discord');
 const token = config.get('token');
 
 trolling = new Map();
@@ -24,15 +25,39 @@ bot.on('message', message => {
 	{
 		msg = message.cleanContent.split(' ');
 		switch (msg[1]) {
-			case 'test': message.channel.send(`Bravo ${message.author}, le test a REUSSI !`); break;
-			case 'norris': message.channel.send(`Chuck Norris est contre les radars automatiques, ça l'éblouie quand il fait du vélo.`); break;
-			case 'calcule': calc(msg, message); break;
-			case 'rickroll': rickroll(message); break;
-			case 'stoprick': stoprick(message); break;
+			case 'test'		: message.channel.send(`Bravo ${message.author}, le test a REUSSI !`); break;
+			case 'norris'	: message.channel.send(`Chuck Norris est contre les radars automatiques, ça l'éblouie quand il fait du vélo.`); break;
+			case 'calcule'	: calc(msg, message); break;
+			case 'rickroll'	: rickroll(message); break;
+			case 'stoprick'	: stoprick(message); break;
+			case 'play'		: play(message, msg); break;
 		}
 		// console.log(message);
 	}
 })
+
+function play(message, msg) {
+	switch (msg[2]) {
+		case 'youtube'	: youtube(message, msg[3]); break;
+	}
+}
+
+function youtube(message, url) {
+	console.log(message);
+	let voiceChannel = message.member.voiceChannel;
+	if (voiceChannel == undefined) {
+		message.channel.send(`${message.author} n'est pas dans un salon vocal !`);
+		return;
+	}
+	voiceChannel.join().then(async connection => {
+		let disp = connection.playOpusStream(await ytdl(url));
+		message.channel.send(`Lecture de ${url} en cours !`);
+		disp.on('end', () => {
+			message.channel.send(`Lecture finie !`);
+			voiceChannel.leave();
+		})
+	})
+}
 
 function calc(msg, message) {
 	let a = Number(msg[2]), b = Number(msg[4]);
