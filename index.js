@@ -49,8 +49,12 @@ function youtube(message, url) {
 		return;
 	}
 	voiceChannel.join().then(async connection => {
-		console.log(bot);
-		let disp = connection.playOpusStream(await ytdl(url));
+		let disp = connection.playOpusStream(await ytdl(url)
+		.catch(() => {
+			message.channel.send(`Une erreur s'est produite !`);
+			message.guild.members.get(bot.user.id).voiceChannel.leave();
+			return;
+		}));
 		message.channel.send(`Lecture de ${url} en cours !`);
 		disp.on('end', () => {
 			message.channel.send(`Lecture finie !`);
@@ -83,7 +87,7 @@ function stoprick(message) {
 	let user = msg[2].replace(/\D/g,'');
 	if (trolling.has(user)) {
 		trolling.get(user).end();
-		message.channel.send("C'est finit !")
+		message.channel.send("C'est fini !")
 	}
 	else message.channel.send(`${message.guild.members.get(user)} n'est pas en train de se faire troller !`)
 }
