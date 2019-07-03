@@ -3,8 +3,12 @@ const bot = new Discord.Client();
 const config = require('config');
 const ytdl = require('ytdl-core-discord');
 const token = config.get('token');
+const YouTube = require('simple-youtube-api');
+const ytbapi = new YouTube(config.get('youtube'));
 
 trolling = new Map();
+queue = new Map();
+
 bot.on('ready', () => {
 	console.log('Bot is UP !')
 	var channel = bot.channels.filter(chan => {
@@ -31,6 +35,7 @@ bot.on('message', message => {
 			case 'rickroll'	: rickroll(message); break;
 			case 'stoprick'	: stoprick(message); break;
 			case 'play'		: play(message, msg); break;
+			case 'l'		: console.log(message.guild); break;
 		}
 		// console.log(message);
 	}
@@ -38,30 +43,52 @@ bot.on('message', message => {
 
 function play(message, msg) {
 	switch (msg[2]) {
-		case 'youtube'	: youtube(message, msg[3]); break;
+		case 'youtube'	: addytb(message, msg[3]); break;
+		default			: message.channel.send(`Mec, je connais pas ${msg[2]} !`); return;
 	}
+	if (message.guild.members.get(bot.user.id).voiceChannel == undefined)
+		playqueue(message);
 }
 
-function youtube(message, url) {
+async function playqueue(message) {
 	let voiceChannel = message.member.voiceChannel;
-	if (voiceChannel == undefined) {
-		message.channel.send(`${message.author} n'est pas dans un salon vocal !`);
-		return;
+	let connection = await voiceChannel.join();
+	while (queue.get(message.guild.id).length != 0) {
+		var current = queue.get(message.guild.id).shift();
+		switch (current.type) {
+			case 'youtube'	: await youtube(connection, current.url, current.title, message);
+		}
 	}
-	voiceChannel.join().then(async connection => {
+	message.channel.send('Il n\'y a plus rien à lire, je vous emmerde et je rentre à ma maison !')
+	message.guild.members.get(bot.user.id).voiceChannel.leave();
+}
+
+function addytb(message, url) {
+	if (!queue.has(message.guild.id))
+		queue.set(message.guild.id, []);
+	ytbapi.getVideo(url)
+	.then(video => {
+		message.channel.send(`J'ai ajouté ${video.title} à la queue !`);
+		queue.get(message.guild.id).push({"url": url, "type": 'youtube', "title": video.title});
+	})
+	.catch(() => {
+		message.channel.send(`J'ai pas réussi à ajouter ça à la queue !`);
+	});
+}
+async function youtube(connection, url, title, message) {
+	return new Promise(async (resolve, reject) => {
 		let disp = connection.playOpusStream(await ytdl(url)
 		.catch(() => {
-			message.channel.send(`Une erreur s'est produite !`);
-			message.guild.members.get(bot.user.id).voiceChannel.leave();
-			return;
+			message.channel.send(`Impossible de lire ${title}`);
+			resolve();
 		}));
-		message.channel.send(`Lecture de ${url} en cours !`);
+		message.channel.send(`Lecture de ${title} en cours !`);
 		disp.on('end', () => {
-			message.channel.send(`Lecture finie !`);
-			message.guild.members.get(bot.user.id).voiceChannel.leave();
+			resolve();
 		})
 	})
 }
+
 
 function calc(msg, message) {
 	let a = Number(msg[2]), b = Number(msg[4]);
