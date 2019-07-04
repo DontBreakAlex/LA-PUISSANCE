@@ -31,6 +31,7 @@ bot.on('message', message => {
 			case 'play'		: play(message, msg); break;
 			case 'stop'		: stop(message); break;
 			case 'next'		: next(message); break;
+			case 'queue'	: displayqueue(message); break;
 			case 'l'		: console.log(message.attachments); break;
 		}
 		// console.log(message);
@@ -179,13 +180,27 @@ function addmp3(message) {
 	}
 }
 
-function download(url, filename){
+function download(url, filename) {
 	return new Promise((resolve, reject) => {
 		request.get(url)
 			.on('error', err => reject(err))
 			.pipe(fs.createWriteStream('./downloads/' + filename))
 			.on('finish', () => resolve());
 	})
+}
+
+function displayqueue(message) {
+	let string = '';
+	if (queue.get(message.guild.id).length != 0)
+	{
+		queue.get(message.guild.id).forEach((elem, index) => {
+			switch (elem.type) {
+				case 'youtube'	: string += `${index+1} | ${(elem.title)}\n`; break;
+				case 'mp3'	: string += `${index+1} | ${(elem.filename)}\n`; break;
+			}
+		});
+		message.channel.send(string);
+	}
 }
 
 bot.login(token);
