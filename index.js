@@ -10,6 +10,7 @@ const fs = require(`fs`);
 
 trolling = new Map();
 queue = new Map();
+dispatchmap = new Map();
 
 bot.on('ready', () => {
 	console.log('Bot is UP !')
@@ -28,6 +29,8 @@ bot.on('message', message => {
 			case 'rickroll'	: rickroll(message); break;
 			case 'stoprick'	: stoprick(message); break;
 			case 'play'		: play(message, msg); break;
+			case 'stop'		: stop(message); break;
+			case 'next'		: next(message); break;
 			case 'l'		: console.log(message.attachments); break;
 		}
 		// console.log(message);
@@ -45,6 +48,15 @@ function play(message, msg) {
 		playqueue(message);
 }
 
+function next(message) {
+	dispatchmap.get(message.guild.id).end();
+}
+
+function stop(message) {
+	queue.get(message.guild.id).length = 0;
+	dispatchmap.get(message.guild.id).end();
+}
+
 async function playqueue(message) {
 	if (queue.get(message.guild.id).length != 0)
 	{
@@ -59,6 +71,7 @@ async function playqueue(message) {
 		}
 		message.channel.send('Il n\'y a plus rien à lire, je vous emmerde et je rentre à ma maison !')
 		message.guild.members.get(bot.user.id).voiceChannel.leave();
+		dispatchmap.delete(message.guild.id);
 	}
 }
 
@@ -81,6 +94,7 @@ async function youtube(connection, url, title, message) {
 			message.channel.send(`Impossible de lire ${title}`);
 			resolve();
 		}));
+		dispatchmap.set(message.guild.id, disp);
 		message.channel.send(`Lecture de ${title} en cours !`);
 		disp.on('end', () => {
 			resolve();
@@ -91,6 +105,7 @@ async function youtube(connection, url, title, message) {
 async function mp3(connection, filename, message) {
 	return new Promise((resolve, reject) => {
 		let disp = connection.playFile('./downloads/test.mp3');
+		dispatchmap.set(message.guild.id, disp);
 		message.channel.send(`Lecture de ${filename} en cours !`);
 		disp.on('end', end => {
 			resolve();
