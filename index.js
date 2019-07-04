@@ -5,21 +5,14 @@ const ytdl = require('ytdl-core-discord');
 const token = config.get('token');
 const YouTube = require('simple-youtube-api');
 const ytbapi = new YouTube(config.get('youtube'));
+const request = require(`request`);
+const fs = require(`fs`);
 
 trolling = new Map();
 queue = new Map();
 
 bot.on('ready', () => {
 	console.log('Bot is UP !')
-	var channel = bot.channels.filter(chan => {
-		if (chan.type == 'voice')
-			return 1;
-		else
-			return 0;
-	})/* .first() */;
-	// channel.get('208962998033711104').join();
-	// setTimeout(() => {channel.get('246938049810923521').join();}, 5000);
-	// channel.send('LA PUISSANCE est en ligne !');
 	bot.user.setPresence('online');
 	bot.user.setActivity('être plus puissant', {type: 'PLAYING'});
 })
@@ -35,7 +28,7 @@ bot.on('message', message => {
 			case 'rickroll'	: rickroll(message); break;
 			case 'stoprick'	: stoprick(message); break;
 			case 'play'		: play(message, msg); break;
-			case 'l'		: console.log(message.guild); break;
+			case 'l'		: console.log(message.attachments); break;
 		}
 		// console.log(message);
 	}
@@ -43,24 +36,30 @@ bot.on('message', message => {
 
 function play(message, msg) {
 	switch (msg[2]) {
+		case undefined	: break;
 		case 'youtube'	: addytb(message, msg[3]); break;
+		case 'mp3'		: addmp3(message, msg); break;
 		default			: message.channel.send(`Mec, je connais pas ${msg[2]} !`); return;
 	}
-	if (message.guild.members.get(bot.user.id).voiceChannel == undefined)
+	if (message.guild.members.get(bot.user.id).voiceChannel == undefined && message.member.voiceChannel != undefined)
 		playqueue(message);
 }
 
 async function playqueue(message) {
-	let voiceChannel = message.member.voiceChannel;
-	let connection = await voiceChannel.join();
-	while (queue.get(message.guild.id).length != 0) {
-		var current = queue.get(message.guild.id).shift();
-		switch (current.type) {
-			case 'youtube'	: await youtube(connection, current.url, current.title, message);
+	if (queue.get(message.guild.id).length != 0)
+	{
+		let voiceChannel = message.member.voiceChannel;
+		let connection = await voiceChannel.join();
+		while (queue.get(message.guild.id).length != 0) {
+			var current = queue.get(message.guild.id).shift();
+			switch (current.type) {
+				case 'youtube'	: await youtube(connection, current.url, current.title, message); break;
+				case 'mp3'		: await mp3(connection, current.file, message); break;
+			}
 		}
+		message.channel.send('Il n\'y a plus rien à lire, je vous emmerde et je rentre à ma maison !')
+		message.guild.members.get(bot.user.id).voiceChannel.leave();
 	}
-	message.channel.send('Il n\'y a plus rien à lire, je vous emmerde et je rentre à ma maison !')
-	message.guild.members.get(bot.user.id).voiceChannel.leave();
 }
 
 function addytb(message, url) {
@@ -89,6 +88,15 @@ async function youtube(connection, url, title, message) {
 	})
 }
 
+async function mp3(connection, filename, message) {
+	return new Promise((resolve, reject) => {
+		let disp = connection.playFile('./downloads/test.mp3');
+		message.channel.send(`Lecture de ${filename} en cours !`);
+		disp.on('end', end => {
+			resolve();
+		})
+	})
+}
 
 function calc(msg, message) {
 	let a = Number(msg[2]), b = Number(msg[4]);
@@ -135,6 +143,34 @@ function rickroll(message) {
 			message.guild.members.get(bot.user.id).voiceChannel.leave();
 		})
 	});
+}
+
+function addmp3(message) {
+	if (!queue.has(message.guild.id))
+		queue.set(message.guild.id, []);
+	let attachment = message.attachments.first();
+	if (attachment.filename.slice(-3) == 'mp3') {
+		download(attachment.url, attachment.filename)
+		.then(() => {
+			queue.get(message.guild.id).push({"file": attachment.filename, "type": 'mp3'});
+			message.channel.send(`J'ai ajouté ${attachment.filename} à la queue !`)
+		})
+		.catch(err => {
+			message.channel.send("Une erreur s'est produite lors du téléchargment !");
+	});
+	}
+	else {
+		message.channel.send(`Mec, t'as rien compris, il faut joindre un fichier mp3 au message !`)
+	}
+}
+
+function download(url, filename){
+	return new Promise((resolve, reject) => {
+		request.get(url)
+			.on('error', err => reject(err))
+			.pipe(fs.createWriteStream('./downloads/' + filename))
+			.on('finish', () => resolve());
+	})
 }
 
 bot.login(token);
