@@ -191,7 +191,7 @@ function download(url, filename) {
 
 function displayqueue(message) {
 	let string = '';
-	if (queue.get(message.guild.id).length != 0)
+	if (queue.has(message.guild.id) && queue.get(message.guild.id).length != 0)
 	{
 		queue.get(message.guild.id).forEach((elem, index) => {
 			switch (elem.type) {
