@@ -105,7 +105,7 @@ async function youtube(connection, url, title, message) {
 
 async function mp3(connection, filename, message) {
 	return new Promise((resolve, reject) => {
-		let disp = connection.playFile('./downloads/test.mp3');
+		let disp = connection.playFile('./downloads/' + filename);
 		dispatchmap.set(message.guild.id, disp);
 		message.channel.send(`Lecture de ${filename} en cours !`);
 		disp.on('end', end => {
@@ -196,10 +196,13 @@ function displayqueue(message) {
 		queue.get(message.guild.id).forEach((elem, index) => {
 			switch (elem.type) {
 				case 'youtube'	: string += `${index+1} | ${(elem.title)}\n`; break;
-				case 'mp3'	: string += `${index+1} | ${(elem.filename)}\n`; break;
+				case 'mp3'	: string += `${index+1} | ${(elem.file)}\n`; break;
 			}
 		});
 		message.channel.send(string);
+	}
+	else {
+		message.channel.send("La queue est vide !")
 	}
 }
 
