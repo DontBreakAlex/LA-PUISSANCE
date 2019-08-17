@@ -3,14 +3,31 @@ const bot = new Discord.Client();
 const config = require('config');
 const ytdl = require('ytdl-core-discord');
 const token = config.get('token');
+const arl = config.get('arl');
 const YouTube = require('simple-youtube-api');
 const ytbapi = new YouTube(config.get('youtube'));
 const request = require(`request`);
 const fs = require(`fs`);
+const { spawn } = require('child_process');
 
 trolling = new Map();
 queue = new Map();
 dispatchmap = new Map();
+
+if (!fs.existsSync("SMLoadr-linux-x64")) {
+	console.log('Downloading SMLoadr...');
+	download("https://git.fuwafuwa.moe/SMLoadrDev/SMLoadr/releases/download/v1.9.5/SMLoadr-linux-x64_v1.9.5.zip","SMLoadr-linux-x64_v1.9.5.zip").then(() => {
+		let unzip = spawn('unzip', ['./downloads/SMLoadr-linux-x64_v1.9.5.zip']);
+		// unzip.stdout.on('data', data => {console.log(data.toString())});
+		console.log('Unziping SMLoadr...');
+		unzip.on('exit', () => {
+			console.log('Done !');
+			spawn('chmod', ['+x', './SMLoadr-linux-x64']);
+			fs.writeFile('SMLoadrConfig.json', `{\n"saveLayout": "",\n"arl": "${arl}"\n}`, () => {});
+			fs.unlink('./downloads/SMLoadr-linux-x64_v1.9.5.zip', () => {});
+		})
+	})
+}
 
 bot.on('ready', () => {
 	console.log('Bot is UP !')
@@ -43,6 +60,7 @@ function play(message, msg) {
 		case undefined	: break;
 		case 'youtube'	: addytb(message, msg[3]); break;
 		case 'mp3'		: addmp3(message, msg); break;
+		case 'deezer'	: addDeezer(message, msg[3]); break;
 		default			: message.channel.send(`Mec, je connais pas ${msg[2]} !`); return;
 	}
 	if (message.guild.members.get(bot.user.id).voiceChannel == undefined && message.member.voiceChannel != undefined)
@@ -68,6 +86,7 @@ async function playqueue(message) {
 			switch (current.type) {
 				case 'youtube'	: await youtube(connection, current.url, current.title, message); break;
 				case 'mp3'		: await mp3(connection, current.file, message); break;
+				case 'deezer'	: await deezer(connection, current.file, current.title, message); break;
 			}
 		}
 		message.channel.send('Il n\'y a plus rien à lire, je vous emmerde et je rentre à ma maison !')
@@ -108,6 +127,17 @@ async function mp3(connection, filename, message) {
 		let disp = connection.playFile('./downloads/' + filename);
 		dispatchmap.set(message.guild.id, disp);
 		message.channel.send(`Lecture de ${filename} en cours !`);
+		disp.on('end', end => {
+			resolve();
+		})
+	})
+}
+
+async function deezer(connection, file, title, message) {
+	return new Promise((resolve, reject) => {
+		let disp = connection.playFile('./downloads/' + file);
+		dispatchmap.set(message.guild.id, disp);
+		message.channel.send(`Lecture de ${title} en cours !`)
 		disp.on('end', end => {
 			resolve();
 		})
@@ -180,6 +210,33 @@ function addmp3(message) {
 	}
 }
 
+function addDeezer(message, url) {
+	if (!queue.has(message.guild.id))
+		queue.set(message.guild.id, []);
+	let id = url.split('/').pop();
+	if (!url.includes('track')) {
+		return;
+	}
+	let SMLoadr = spawn('./SMLoadr-linux-x64', ['--url', url, '-p', `./tmp/${id}/`]);
+	SMLoadr.on('exit', code => {
+		let find = spawn('find', [`./tmp/${id}/`, '-name', '*.mp3', '-print', '-exec', 'mv', '{}', `./downloads/${id}.mp3`, ';']);
+		var title;
+		find.stdout.on('data', data => {
+			title = data.toString().split('/').pop();
+			title = title.substr(3, title.length - 8);
+		});
+		find.on('exit', code => {
+			if (code == 1) {
+				message.channel.send("J'ai pas réussi à ajouter ça à la queue !")
+				return;
+			}
+			spawn('rm', ['-r', `./tmp/${id}`]);
+			queue.get(message.guild.id).push({"file": `${id}.mp3`, "type": 'deezer', "title": title});
+			message.channel.send(`J'ai ajouté ${title} à la queue !`)
+		})
+	})
+}
+
 function download(url, filename) {
 	return new Promise((resolve, reject) => {
 		request.get(url)
@@ -197,6 +254,7 @@ function displayqueue(message) {
 			switch (elem.type) {
 				case 'youtube'	: string += `${index+1} | ${(elem.title)}\n`; break;
 				case 'mp3'	: string += `${index+1} | ${(elem.file)}\n`; break;
+				case 'deezer' : string += `${index+1} | ${(elem.title)}\n`; break;
 			}
 		});
 		message.channel.send(string);
