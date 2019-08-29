@@ -43,6 +43,7 @@ bot.on('message', message => {
 			case 'test'		: message.channel.send(`Bravo ${message.author}, le test a REUSSI !`); break;
 			case 'norris'	: message.channel.send(`Chuck Norris est contre les radars automatiques, ça l'éblouie quand il fait du vélo.`); break;
 			case 'calcule'	: calc(msg, message); break;
+			case 'urss'		: urss(message); break;
 			case 'rickroll'	: rickroll(message); break;
 			case 'stoprick'	: stoprick(message); break;
 			case 'play'		: play(message, msg); break;
@@ -189,6 +190,31 @@ function rickroll(message) {
 			message.guild.members.get(bot.user.id).voiceChannel.leave();
 		})
 	});
+}
+
+function urss(message) {
+	if (trolling.has(message.guild.id)) {
+		trolling.get(message.guild.id).end();
+		trolling.delete(message.guild.id);
+		message.channel.send(`C'est finit !`);
+		let staline = new Discord.RichEmbed()
+			.setAuthor('Staline', 'http://ekouter.net/img/img/Staline.jpg')
+			.setDescription(`Quoi ?! Vous n'écoutez pas l'hymne soviétique jusqu'au bout ? J'envoie les KV-1 de l'armée rouge !`)
+		message.channel.send(staline);
+		return ;
+	}
+	if (message.member.voiceChannel == undefined) {
+		message.channel.send(`Mec, t'es pas dans un salon vocal !`);
+		return ;
+	}
+	message.member.voiceChannel.join().then(connection => {
+		let disp = connection.playFile('./ressources/urss.webm');
+		message.channel.send("C'est parti !")
+		trolling.set(message.guild.id, disp)
+		disp.on('end', (end) => {
+			message.guild.members.get(bot.user.id).voiceChannel.leave();
+		})
+	})
 }
 
 function addmp3(message) {
