@@ -16,15 +16,15 @@ dispatchmap = new Map();
 
 if (!fs.existsSync("SMLoadr-linux-x64")) {
 	console.log('Downloading SMLoadr...');
-	download("https://git.fuwafuwa.moe/SMLoadrDev/SMLoadr/releases/download/v1.9.5/SMLoadr-linux-x64_v1.9.5.zip","SMLoadr-linux-x64_v1.9.5.zip").then(() => {
-		let unzip = spawn('unzip', ['./downloads/SMLoadr-linux-x64_v1.9.5.zip']);
+	download("https://git.fuwafuwa.moe/attachments/9a051535-b6d7-44ae-bee2-bb9aef22e189","SMLoadr-linux-x64.zip").then(() => {
+		let unzip = spawn('unzip', ['./downloads/SMLoadr-linux-x64.zip']);
 		// unzip.stdout.on('data', data => {console.log(data.toString())});
 		console.log('Unziping SMLoadr...');
 		unzip.on('exit', () => {
 			console.log('Done !');
 			spawn('chmod', ['+x', './SMLoadr-linux-x64']);
 			fs.writeFile('SMLoadrConfig.json', `{\n"saveLayout": "",\n"arl": "${arl}"\n}`, () => {});
-			fs.unlink('./downloads/SMLoadr-linux-x64_v1.9.5.zip', () => {});
+			fs.unlink('./downloads/SMLoadr-linux-x64.zip', () => {});
 		})
 	})
 }
@@ -56,12 +56,12 @@ bot.on('message', message => {
 	}
 })
 
-function play(message, msg) {
+async function play(message, msg) {
 	switch (msg[2]) {
 		case undefined	: break;
-		case 'youtube'	: addytb(message, msg[3]); break;
-		case 'mp3'		: addmp3(message, msg); break;
-		case 'deezer'	: addDeezer(message, msg[3]); break;
+		case 'youtube'	: await addytb(message, msg[3]); break;
+		case 'mp3'		: await addmp3(message, msg); break;
+		case 'deezer'	: await addDeezer(message, msg[3]); break;
 		default			: message.channel.send(`Mec, je connais pas ${msg[2]} !`); return;
 	}
 	if (message.guild.members.get(bot.user.id).voiceChannel == undefined && message.member.voiceChannel != undefined)
@@ -104,7 +104,8 @@ function addytb(message, url) {
 		message.channel.send(`J'ai ajouté ${video.title} à la queue !`);
 		queue.get(message.guild.id).push({"url": url, "type": 'youtube', "title": video.title});
 	})
-	.catch(() => {
+	.catch(e => {
+		console.error(e);
 		message.channel.send(`J'ai pas réussi à ajouter ça à la queue !`);
 	});
 }
@@ -217,48 +218,57 @@ function urss(message) {
 	})
 }
 
-function addmp3(message) {
-	if (!queue.has(message.guild.id))
-		queue.set(message.guild.id, []);
-	let attachment = message.attachments.first();
-	if (attachment.filename.slice(-3) == 'mp3') {
-		download(attachment.url, attachment.filename)
-		.then(() => {
-			queue.get(message.guild.id).push({"file": attachment.filename, "type": 'mp3'});
-			message.channel.send(`J'ai ajouté ${attachment.filename} à la queue !`)
-		})
-		.catch(err => {
-			message.channel.send("Une erreur s'est produite lors du téléchargment !");
-	});
-	}
-	else {
-		message.channel.send(`Mec, t'as rien compris, il faut joindre un fichier mp3 au message !`)
-	}
+async function addmp3(message) {
+	return new Promise((resolve, reject) => {
+		if (!queue.has(message.guild.id))
+			queue.set(message.guild.id, []);
+		let attachment = message.attachments.first();
+		if (attachment.filename.slice(-3) == 'mp3') {
+			download(attachment.url, attachment.filename)
+				.then(() => {
+					queue.get(message.guild.id).push({ "file": attachment.filename, "type": 'mp3' });
+					message.channel.send(`J'ai ajouté ${attachment.filename} à la queue !`)
+					resolve();
+				})
+				.catch(err => {
+					message.channel.send("Une erreur s'est produite lors du téléchargment !");
+					resolve();
+				});
+		}
+		else {
+			message.channel.send(`Mec, t'as rien compris, il faut joindre un fichier mp3 au message !`)
+			resolve();
+		}
+	})
 }
 
-function addDeezer(message, url) {
-	if (!queue.has(message.guild.id))
+async function addDeezer(message, url) {
+	return new Promise((resolve, reject) => {
+		if (!queue.has(message.guild.id))
 		queue.set(message.guild.id, []);
-	let id = url.split('/').pop();
-	if (!url.includes('track')) {
-		return;
-	}
-	let SMLoadr = spawn('./SMLoadr-linux-x64', ['--url', url, '-p', `./tmp/${id}/`]);
-	SMLoadr.on('exit', code => {
-		let find = spawn('find', [`./tmp/${id}/`, '-name', '*.mp3', '-print', '-exec', 'mv', '{}', `./downloads/${id}.mp3`, ';']);
-		var title;
-		find.stdout.on('data', data => {
-			title = data.toString().split('/').pop();
-			title = title.substr(3, title.length - 8);
-		});
-		find.on('exit', code => {
-			if (code == 1) {
-				message.channel.send("J'ai pas réussi à ajouter ça à la queue !")
-				return;
-			}
-			spawn('rm', ['-r', `./tmp/${id}`]);
-			queue.get(message.guild.id).push({"file": `${id}.mp3`, "type": 'deezer', "title": title});
-			message.channel.send(`J'ai ajouté ${title} à la queue !`)
+		let id = url.split('/').pop();
+		if (!url.includes('track')) {
+			resolve();
+		}
+		//TODO Set interval to kill SMLoadr
+		let SMLoadr = spawn('./SMLoadr-linux-x64', ['--url', url, '-p', `./tmp/${id}/`]);
+		SMLoadr.on('exit', code => {
+			let find = spawn('find', [`./tmp/${id}/`, '-name', '*.mp3', '-print', '-exec', 'mv', '{}', `./downloads/${id}.mp3`, ';']);
+			var title;
+			find.stdout.on('data', data => {
+				title = data.toString().split('/').pop();
+				title = title.substr(3, title.length - 8);
+			});
+			find.on('exit', code => {
+				if (code == 1) {
+					message.channel.send("J'ai pas réussi à ajouter ça à la queue !")
+					return;
+				}
+				spawn('rm', ['-r', `./tmp/${id}`]);
+				queue.get(message.guild.id).push({ "file": `${id}.mp3`, "type": 'deezer', "title": title });
+				message.channel.send(`J'ai ajouté ${title} à la queue !`)
+				resolve();
+			})
 		})
 	})
 }
