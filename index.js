@@ -96,24 +96,30 @@ async function playqueue(message) {
 	}
 }
 
-function addytb(message, url) {
-	if (!queue.has(message.guild.id))
+async function addytb(message, url) {
+	return new Promise((resolve, reject) => {
+		if (!queue.has(message.guild.id))
 		queue.set(message.guild.id, []);
-	ytbapi.getVideo(url)
-	.then(video => {
-		message.channel.send(`J'ai ajouté ${video.title} à la queue !`);
-		queue.get(message.guild.id).push({"url": url, "type": 'youtube', "title": video.title});
+		ytbapi.getVideo(url)
+		.then(video => {
+			message.channel.send(`J'ai ajouté ${video.title} à la queue !`);
+			queue.get(message.guild.id).push({"url": url, "type": 'youtube', "title": video.title});
+		})
+		.catch(e => {
+			console.error(e);
+			message.channel.send(`J'ai pas réussi à ajouter ça à la queue !`);
+		})
+		.finally(() => {
+			resolve();
+		});
 	})
-	.catch(e => {
-		console.error(e);
-		message.channel.send(`J'ai pas réussi à ajouter ça à la queue !`);
-	});
 }
 async function youtube(connection, url, title, message) {
 	return new Promise(async (resolve, reject) => {
 		let disp = connection.playOpusStream(await ytdl(url)
-		.catch(() => {
+		.catch(e => {
 			message.channel.send(`Impossible de lire ${title}`);
+			console.error(e)
 			resolve();
 		}));
 		dispatchmap.set(message.guild.id, disp);
