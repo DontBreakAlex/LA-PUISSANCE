@@ -62,7 +62,14 @@ async function play(message, msg) {
 		case 'youtube'	: await addytb(message, msg[3]); break;
 		case 'mp3'		: await addmp3(message, msg); break;
 		case 'deezer'	: await addDeezer(message, msg[3]); break;
-		default			: message.channel.send(`Mec, je connais pas ${msg[2]} !`); return;
+		default:
+			if (msg[2].includes('www.youtube')) {
+				await addytb(message, msg[2]);
+				break;
+			} else {
+				message.channel.send(`Mec, je connais pas ${msg[2]} !`);
+				return;
+			}
 	}
 	if (message.guild.members.get(bot.user.id).voiceChannel == undefined && message.member.voiceChannel != undefined)
 		playqueue(message);
