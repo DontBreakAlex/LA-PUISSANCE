@@ -4,8 +4,8 @@
   "description": "C'est LA PUISSANCE",
   "main": "index.js",
   "scripts": {
-	"test": "echo \"Error: no test specified\" && exit 1",
-	"start": "tsc; node build/srcs/index.js;"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc; node build/srcs/index.js;"
   },
   "author": "Alexandre Seo",
   "license": "GPL-2.0-only",

@@ -1,0 +1,21 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"runtimeVersion": "13.6.0",
+			"request": "launch",
+			"name": "v13",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/build/srcs/index.js",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			]
+		}
+	]
+}
