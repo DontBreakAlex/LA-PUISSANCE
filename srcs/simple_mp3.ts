@@ -1,8 +1,6 @@
 import Command from './command'
-import { Message, Guild } from "discord.js"
+import { Message, StreamDispatcher, MessageEmbed, VoiceChannel } from 'discord.js';
 import { Playing } from './guild_map';
-import { StreamDispatcher, MessageEmbed } from 'discord.js';
-import { VoiceChannel } from 'discord.js';
 
 /** WARNING:
  * 		This files suffers from code duplication
@@ -65,7 +63,7 @@ class Rick extends Command {
 					message.channel.send(`${array[1].slice(1)} n'est pas dans un salon !`);
 				else {
 					let connection = await vChannel.join();
-					let dispatcher = connection.play('./ressources/urss.webm')
+					let dispatcher = connection.play('./ressources/rickroll.webm')
 					bindEvent(dispatcher, () => {
 						(<VoiceChannel>vChannel).leave();
 						status.playing = Playing.None;
