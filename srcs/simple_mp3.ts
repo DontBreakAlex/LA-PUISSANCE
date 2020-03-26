@@ -13,11 +13,11 @@ function bindEvent(dispatcher: StreamDispatcher, cb: () => void) {
 }
 
 class Urss extends Command {
-	test(command: String) {
+	test(command: string) {
 		return command == 'urss'
 	}
 
-	async execute(message: Message, array: String[]) {
+	async execute(message: Message, array: string[]) {
 		if (!message.guild || !message.member) return;
 		let status = message.guild.status;
 		if (status.playing == Playing.None) {
@@ -47,11 +47,11 @@ class Urss extends Command {
 }
 
 class Rick extends Command {
-	test(command: String) {
+	test(command: string) {
 		return command == 'rick'
 	}
 
-	async execute(message: Message, array: String[]) {
+	async execute(message: Message, array: string[]) {
 		if (!message.guild || !message.member) return;
 		let status = message.guild.status;
 		if (status.playing == Playing.None) {

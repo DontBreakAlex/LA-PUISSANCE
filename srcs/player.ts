@@ -1,23 +1,25 @@
 import Command from './command'
-import { Message, StreamDispatcher, MessageEmbed, VoiceChannel, VoiceConnection, TextChannel, GuildMember, DMChannel } from 'discord.js';
+import { Message, StreamDispatcher, VoiceConnection, TextChannel, GuildMember, DMChannel } from 'discord.js';
 import Providers from './providers';
 import { GuildStatus, Playing } from './guild_map';
 
 class Play extends Command {
-	test(command: String) {
+	test(command: string) {
 		return command == 'play' || command == 'stop' || command.includes('www.youtube')
 	}
 
-	async execute(message: Message, array: String[]) {
+	async execute(message: Message, array: string[]) {
 		if (!message.guild || !message.member || message.channel instanceof DMChannel) return;
+		if (array[0] == 'stop')	return message.guild.status.queue.flush();
 		let player: Player;
 		for (player of Providers)
 			if (player.test(array[1])) {
 				try {
-					message.guild.status.queue.push(await player.clone(message, array));
+					message.guild.status.queue.push(await player.clone(message, array, message.channel));
 					message.guild.status.queue.play(message.channel, message.member);
 				} catch (e) {
-					message.channel.send(e)
+					let send = typeof e === 'string' ? e : e.message;
+					message.channel.send(send)
 				}
 				break;
 			}
@@ -26,8 +28,8 @@ class Play extends Command {
 
 abstract class Player {
 	abstract play(arg0: VoiceConnection): StreamDispatcher;
-	abstract clone(arg0: Message, arg1: String[]): Promise<Player>;
-	abstract test(arg0: String): boolean;
+	abstract clone(arg0: Message, arg1: string[], channel: TextChannel): Promise<Player>;
+	abstract test(arg0: string): boolean;
 	abstract announce(arg0: TextChannel): void;
 }
 
@@ -55,8 +57,14 @@ class PlayerQueue extends Array<Player> {
 				await DispatcherEnd(this.parent.dispatcher);
 			}
 			this.parent.voice.disconnect();
+			delete this.parent.voice;
 			channel.send(`Il n'y a plus rien à lire, je vous emmerde et je rentre à ma maison !`)
 		}
+	}
+
+	flush() {
+		this.length = 0;
+		this.parent.dispatcher?.end();
 	}
 }
 

@@ -22,8 +22,8 @@ class GuildStatus {
 	voice?: VoiceConnection;
 }
 
-class GuildMap extends Map<String, GuildStatus> {
-	findOrCreate(id: String): GuildStatus {
+class GuildMap extends Map<string, GuildStatus> {
+	findOrCreate(id: string): GuildStatus {
 		if (!this.has(id))
 			this.set(id, new GuildStatus());
 		return <GuildStatus>this.get(id);

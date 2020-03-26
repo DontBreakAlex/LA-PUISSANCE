@@ -6,7 +6,7 @@ export default class Calc extends Command {
 		return command == 'calc';
 	}
 
-	execute(message: Message, array: String[]): void {
+	execute(message: Message, array: string[]): void {
 		let a = Number(array[1]), b = Number(array[3]);
 
 		if ((array[2] == '/' || array[2] == '%') && (b == 0))

@@ -1,5 +1,5 @@
 import { Client, Message, Guild } from 'discord.js'
-import * as config from '../config.json'
+import { discordToken } from '../config.json'
 import Commands from './commands'
 import { GuildMap, GuildStatus } from './guild_map'
 const bot = new Client();
@@ -29,4 +29,4 @@ bot.on('message', (message: Message) => {
 	}
 })
 
-bot.login(config.discordToken)
+bot.login(discordToken)
