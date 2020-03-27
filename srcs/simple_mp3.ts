@@ -44,6 +44,26 @@ class Urss extends Command {
 		else
 			message.channel.send("Je suis déjà en train de lire quelque chose !");
 	}
+
+	helpSummary = {
+		text: "Joue l'hymne sovitétique",
+		prefix: "urss"
+	}
+
+	help = {
+		title: "Urss",
+		fields: [
+			{
+				name: "Syntaxe",
+				value: "`lp urss`",
+				inline: true
+			},
+			{
+				name: "Description",
+				value: "Joue l'hymne sovitétique.\nRépéter la commande stoppe la lecture (à vos risques et prérils)"
+			}
+		]
+	}
 }
 
 class Rick extends Command {
@@ -76,6 +96,31 @@ class Rick extends Command {
 			(<StreamDispatcher>status.dispatcher).end();
 		else
 			message.channel.send("Je suis déjà en train de lire quelque chose !");
+	}
+
+	helpSummary = {
+		text: "Trolle un utilisateur",
+		prefix: "rick"
+	}
+
+	help = {
+		title: "Rick",
+		fields: [
+			{
+				name: "Syntaxe",
+				value: "`lp rick <cible>`",
+				inline: true
+			},
+			{
+				name: "Exemple",
+				value: "`lp rick @Michel`",
+				inline: true
+			},
+			{
+				name: "Description",
+				value: "Trolle la persone cible.\nRépeter la commande stoppe le trollage en cours\n`-. . ...- . .-.     --. --- -. -. .-     --. .. ...- .     -.-- --- ..-     ..- .--.`"
+			}
+		]
 	}
 }
 

@@ -2,6 +2,7 @@ import { Client, Message, Guild } from 'discord.js'
 import { discordToken } from '../config.json'
 import Commands from './commands'
 import { GuildMap, GuildStatus } from './guild_map'
+import Help from './help';
 const bot = new Client();
 
 var guilds = new GuildMap();
@@ -20,6 +21,8 @@ bot.on('message', (message: Message) => {
 		array.shift();
 		if (message.guild)
 			message.guild.status = guilds.findOrCreate(message.guild.id);
+		if (array[0] == 'help')
+			Help(message, array, Commands);
 		for (let command of Commands) {
 			if (command.test(array[0])) {
 				command.execute(message, array);

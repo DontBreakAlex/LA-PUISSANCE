@@ -5,12 +5,12 @@ import { GuildStatus, Playing } from './guild_map';
 
 class Play extends Command {
 	test(command: string) {
-		return command == 'play' || command == 'stop' || command.includes('www.youtube')
+		return command == 'play' || command.includes('www.youtube')
 	}
 
 	async execute(message: Message, array: string[]) {
 		if (!message.guild || !message.member || message.channel instanceof DMChannel) return;
-		if (array[0] == 'stop')	return message.guild.status.queue.flush();
+		if (!array[1]) return message.guild.status.queue.play(message.channel, message.member);
 		let player: Player;
 		for (player of Providers)
 			if (player.test(array[1])) {
@@ -23,6 +23,40 @@ class Play extends Command {
 				}
 				break;
 			}
+	}
+
+	helpSummary = {
+		text: "Lance la lecture de la queue ou y ajoute un morceau",
+		prefix: "play"
+	}
+
+	help = {
+		title: "Play",
+		fields: [
+			{
+				name: "Syntaxe",
+				value: "`lp play <source> <url>`",
+				inline: true
+			},
+			{
+				name: "Exemple",
+				value: "`lp play youtube youtu.be/dQw4w9WgXcQ`",
+				inline: true
+			},
+			{
+				name: "Description",
+				value: "Ajoute un morceau à la queue. Lancer la commande sans source lance la lecture de la queue.\n Sources supportées: `youtube`, `mp3`"
+			},
+			{
+				name: "mp3",
+				value: "Attacher un fichier audio au message. Formats: `mp3`, `webm`, `wav`, `flac`",
+				inline: true
+			},
+			{
+				name: "youtube",
+				value: "Possible de ne pas specifier la source:\n`lp play https://youtu.be/dQw4w9WgXcQ`"
+			}
+		]
 	}
 }
 
@@ -78,4 +112,68 @@ async function DispatcherEnd(dispatcher: StreamDispatcher) {
 	})
 }
 
-export { Play, Player, PlayerQueue }
+class Skip extends Command {
+	test(command: string) {
+		return command == 'skip'
+	}
+
+	async execute(message: Message, array: string[]) {
+		if (message.guild)
+				message.guild.status.dispatcher?.end();
+	}
+
+	helpSummary = {
+		text: "Passe au prochain morceau de la queue",
+		prefix: "skip"
+	}
+
+	help = {
+		title: "Skip",
+		fields: [
+			{
+				name: "Syntaxe",
+				value: "`lp skip`",
+				inline: true
+			},
+			{
+				name: "Description",
+				value: "Passe au prochain morceau de la queue"
+			}
+		]
+	}
+}
+
+class Stop extends Command {
+	test(command: string) {
+		return command == 'stop'
+	}
+
+	async execute(message: Message, array: string[]) {
+		if (message.guild) {
+			message.guild.status.dispatcher?.end();
+			message.guild.status.queue.flush();
+		}
+	}
+
+	helpSummary = {
+		text: "Stoppe la lecture de la queue et la vide",
+		prefix: "stop"
+	}
+
+	help = {
+		title: "Stop",
+		fields: [
+			{
+				name: "Syntaxe",
+				value: "`lp stop`",
+				inline: true
+			},
+			{
+				name: "Description",
+				value: "Stoppe la lecture de la queue et la vide"
+			}
+		]
+	}
+}
+
+export { Play, Player, PlayerQueue, Skip, Stop }

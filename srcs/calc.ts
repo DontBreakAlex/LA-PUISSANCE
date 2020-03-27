@@ -25,4 +25,29 @@ export default class Calc extends Command {
 			}
 		}
 	}
+
+	helpSummary = {
+		text: "Calcule des trucs: `1 + 1 = 2`",
+		prefix: "calc"
+	};
+
+	help = {
+		title: "Calc",
+		fields: [
+			{
+				name: "Syntaxe",
+				value: "`lp calc <opération>`",
+				inline: true
+			},
+			{
+				name: "Exemple",
+				value: "`lp calc 1 + 1`\n`1 + 1 = 2`",
+				inline: true
+			},
+			{
+				name: "Description",
+				value: "Fait des calculs. Opérations suportées: `+`, `-`, `/`, `*`, `%`, `^`"
+			}
+		]
+	}
 }

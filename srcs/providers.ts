@@ -3,7 +3,7 @@ import { VoiceConnection, Message, TextChannel } from 'discord.js';
 import ytdl from 'ytdl-core-discord';
 import { Readable } from 'stream';
 import { youtubeKey } from '../config.json';
-import Youtube from 'youtube.ts'
+import Youtube, { YoutubeVideo } from 'youtube.ts'
 import { MessageEmbed } from 'discord.js';
 import ytParser from 'youtube-duration-format';
 
@@ -41,18 +41,22 @@ class youtube implements Player {
 	title = '';
 
 	test(command: string) {
-		return command == 'youtube' || command.includes('www.youtube')
+		return command.includes('youtu')
 	}
 
 	async clone(message: Message, array: string[], channel: TextChannel) {
 		let clone = new youtube();
-		let video = await this.youtube.videos.get(array[2]);
-		clone.readable = await ytdl(array[2]);
-		console.log(video);
+		let video: YoutubeVideo;
+		let url = array[2] || array[1]
+		if (url.indexOf('https://') == -1) url = `https://${url}`;
+		[video, clone.readable] = await Promise.all([
+			this.youtube.videos.get(url),
+			ytdl(url)
+		])
 		clone.title = video.snippet.title;
 		message.channel.send(new MessageEmbed({
 			title: video.snippet.title,
-			url: array[2],
+			url: url,
 			description: `Je l'ai ajouté ça à la queue`,
 			thumbnail: video.snippet.thumbnails.default,
 			fields: [
@@ -81,7 +85,7 @@ class youtube implements Player {
 	}
 
 	announce(channel: TextChannel) {
-		channel.send(`Lecture de ${'youtube'} en cours !`)
+		channel.send(`Lecture de ${this.title} en cours !`)
 	}
 }
 
