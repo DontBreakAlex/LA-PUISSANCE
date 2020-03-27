@@ -11,11 +11,11 @@ console.log(process.version)
 
 bot.on('ready', () => {
 	console.log('Bot is UP !')
-	bot.user?.setPresence({ activity: { name: 'is under heavy dev' }, status: 'online' })
+	bot.user?.setPresence({ activity: { name: 'être plus puissant' }, status: 'online' })
 })
 
 bot.on('message', (message: Message) => {
-	if (message.content.startsWith('ld'))
+	if (message.content.startsWith('lp'))
 	{
 		let array = message.cleanContent.split(' ');
 		if (array.length == 1) return;
