@@ -3,10 +3,10 @@ import { Urss, Rick } from './simple_mp3';
 import { Play, Skip, Stop } from './player';
 
 export default [
-	new Calc(),
-	new Urss(),
-	new Rick(),
 	new Play(),
 	new Skip(),
-	new Stop()
+	new Stop(),
+	new Calc(),
+	new Rick(),
+	new Urss()
 ]

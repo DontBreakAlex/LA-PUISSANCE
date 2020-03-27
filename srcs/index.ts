@@ -18,6 +18,7 @@ bot.on('message', (message: Message) => {
 	if (message.content.startsWith('ld'))
 	{
 		let array = message.cleanContent.split(' ');
+		if (array.length == 1) return;
 		array.shift();
 		if (message.guild)
 			message.guild.status = guilds.findOrCreate(message.guild.id);
