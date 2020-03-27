@@ -51,7 +51,7 @@ class youtube implements Player {
 		if (url.indexOf('https://') == -1) url = `https://${url}`;
 		[video, clone.readable] = await Promise.all([
 			this.youtube.videos.get(url),
-			ytdl(url)
+			ytdl(url, { filter: "audioonly", highWaterMark: 1<<25 })
 		])
 		clone.title = video.snippet.title;
 		message.channel.send(new MessageEmbed({
