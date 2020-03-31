@@ -2,6 +2,7 @@ import Command from './command'
 import { Message, StreamDispatcher, VoiceConnection, TextChannel, GuildMember, DMChannel } from 'discord.js';
 import Providers from './providers';
 import { GuildStatus, Playing } from './guild_map';
+import Events from 'events';
 
 class Play extends Command {
 	test(command: string) {
@@ -105,11 +106,7 @@ class PlayerQueue extends Array<Player> {
 async function DispatcherEnd(dispatcher: StreamDispatcher) {
 	dispatcher.on('error', err => console.error(err));
 	dispatcher.on('warn', err => console.warn(err));
-	return new Promise((resolve, reject) => {
-		dispatcher.on('finish', () => {
-			resolve();
-		})
-	})
+	return Events.once(dispatcher, 'finish');
 }
 
 class Skip extends Command {
