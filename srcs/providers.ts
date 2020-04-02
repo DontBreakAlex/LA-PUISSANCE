@@ -81,7 +81,7 @@ class youtube implements Player {
 	}
 
 	play(connection: VoiceConnection) {
-		return connection.play(<Readable>this.readable)
+		return connection.play(<Readable>this.readable, { type: 'opus' })
 	}
 
 	announce(channel: TextChannel) {
