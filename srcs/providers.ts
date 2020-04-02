@@ -1,6 +1,6 @@
 import { Player } from './player';
 import { VoiceConnection, Message, TextChannel } from 'discord.js';
-import ytdl from 'ytdl-core-discord';
+import ytdl from 'ytdl-core';
 import { Readable } from 'stream';
 import { youtubeKey } from '../config.json';
 import Youtube, { YoutubeVideo } from 'youtube.ts'
@@ -46,13 +46,10 @@ class youtube implements Player {
 
 	async clone(message: Message, array: string[], channel: TextChannel) {
 		let clone = new youtube();
-		let video: YoutubeVideo;
 		let url = array[2] || array[1]
 		if (url.indexOf('https://') == -1) url = `https://${url}`;
-		[video, clone.readable] = await Promise.all([
-			this.youtube.videos.get(url),
-			ytdl(url, { highWaterMark: 1<<25 })
-		])
+		clone.readable = ytdl(url, { highWaterMark: 1 << 22 });
+		let video = await this.youtube.videos.get(url);
 		clone.title = video.snippet.title;
 		message.channel.send(new MessageEmbed({
 			title: video.snippet.title,
@@ -81,7 +78,7 @@ class youtube implements Player {
 	}
 
 	play(connection: VoiceConnection) {
-		return connection.play(<Readable>this.readable, { type: 'opus' })
+		return connection.play(<Readable>this.readable)
 	}
 
 	announce(channel: TextChannel) {
