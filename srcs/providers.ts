@@ -1,12 +1,16 @@
 import { Player } from './player';
-import { VoiceConnection, Message, TextChannel } from 'discord.js';
+import { VoiceConnection, Message, TextChannel, MessageEmbed } from 'discord.js';
 import ytdl from 'ytdl-core';
 import { Readable } from 'stream';
-import { youtubeKey } from '../config.json';
+import { youtubeKey, arl } from '../config.json';
 import Youtube, { YoutubeVideo } from 'youtube.ts'
-import { MessageEmbed } from 'discord.js';
 import ytParser from 'youtube-duration-format';
+import fs from 'fs';
+import https from 'https';
+import { spawn } from 'child_process';
+import fetch from 'node-fetch';
 
+const error = "J'ai pas réussi à ajouter ça à la queue !";
 class mp3 implements Player {
 	stream: string | Buffer | import("stream").Stream = '';
 	title: string = '';
@@ -51,7 +55,7 @@ class youtube implements Player {
 		clone.readable = ytdl(url, { highWaterMark: 1 << 22 });
 		let video = await this.youtube.videos.get(url);
 		clone.title = video.snippet.title;
-		message.channel.send(new MessageEmbed({
+		channel.send(new MessageEmbed({
 			title: video.snippet.title,
 			url: url,
 			description: `Je l'ai ajouté ça à la queue`,
@@ -86,4 +90,106 @@ class youtube implements Player {
 	}
 }
 
-export default [ new mp3, new youtube ]
+class deezer implements Player {
+	file = '';
+	title = '';
+
+	constructor() {
+		fs.stat('SMLoadr-linux-x64', err => {
+			if (!err) return;
+			if (err.code != 'ENOENT') throw err;
+			console.log('Downloading SMLoadr...')
+			const zip = fs.createWriteStream('tmp.zip');
+			https.get('https://git.fuwafuwa.moe/attachments/9a051535-b6d7-44ae-bee2-bb9aef22e189', resp => { resp.pipe(zip).on('finish', () => {
+			spawn('unzip', ['tmp.zip']).on('exit', () => {
+			fs.writeFile('SMLoadrConfig.json', `{\n"saveLayout": "",\n"arl": "${arl}"\n}`, () => {});
+			fs.chmod('SMLoadr-linux-x64', '0777', () => {})
+			fs.unlink('tmp.zip', () => {})
+			console.log('Done !')
+			})})})
+		})
+	}
+
+	test(command: string) {
+		return command.includes('deezer')
+	}
+
+	async clone(message: Message, array: string[], channel: TextChannel) {
+		let clone = new deezer();
+		let url = array[2] || array[1];
+		let id = <string>url.split('/').pop()
+		if (!url.includes('track')) throw error + '(Err 0)'
+		clone.file = `./downloads/${id}.mp3`;
+		let [track] = await Promise.all([
+			this.makeApiCall(id),
+			clone.download(url, id)
+		])
+		if (!track) throw error + '(Err 2)'
+		clone.title = track.title;
+		let h = track.duration / 3600 | 0, m = track.duration % 3600 / 60 | 0, s = track.duration % 60;
+		channel.send(new MessageEmbed({
+			title: track.title,
+			url: track.link,
+			description: `Je l'ai ajouté ça à la queue`,
+			thumbnail: { url: track.album.cover },
+			fields: [
+				{
+					name: 'Artiste',
+					value: `[${track.artist.name}](${track.artist.link})`,
+					inline: true
+				},
+				{
+					name: 'Durée',
+					value: `${h ? h + ':' : ''}${m ? m + ':' : ''}${s}`,
+					inline: true
+				},
+				{
+					name: 'Album',
+					value: `[${track.album.title}](${track.album.link})`,
+					inline: true
+				}
+			]
+		}))
+		return clone;
+	}
+
+	async download(url: string, id: string): Promise<void> {
+		if (await this.exists(this.file)) return;
+		return new Promise((resolve, reject) => {
+			let SMLoadr = spawn('./SMLoadr-linux-x64', ['--url', url, '-p', `./tmp/${id}/`]);
+			SMLoadr.on('exit', code => {
+				if (code != 1) reject(`${error} (Err 3:${code})`)
+				let find = spawn('find', [`./tmp/${id}/`, '-name', '*.mp3', '-print', '-exec', 'mv', '{}', `./downloads/${id}.mp3`, ';']);
+				let title: string;
+				find.on('exit', code => {
+					if (code == 1) reject(error + '(Err 1)')
+					spawn('rm', ['-r', `./tmp/${id}`]);
+					resolve();
+				})
+			})
+		})
+	}
+
+	async makeApiCall(id: string): Promise<Track|undefined> {
+		let resp = await fetch(`https://api.deezer.com/track/${id}`);
+		if (resp.ok) return await resp.json();
+	}
+
+	play(connection: VoiceConnection) {
+		return connection.play(this.file);
+	}
+
+	announce(channel: TextChannel) {
+		channel.send(`Lecture de ${this.title} en cours !`)
+	}
+
+	async exists(file: string): Promise<boolean> {
+		return new Promise(resolve => {
+			fs.stat(file, err => {
+				resolve(!err);
+			})
+		})
+	}
+}
+
+export default [ new mp3, new youtube, new deezer ]

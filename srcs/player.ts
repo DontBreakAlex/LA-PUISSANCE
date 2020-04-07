@@ -46,16 +46,19 @@ class Play extends Command {
 			},
 			{
 				name: "Description",
-				value: "Ajoute un morceau à la queue. Lancer la commande sans source lance la lecture de la queue.\n Sources supportées: `youtube`, `mp3`"
+				value: "Ajoute un morceau à la queue. Lancer la commande sans source lance la lecture de la queue.\n Sources supportées: `youtube`, `mp3`, `deezer`"
 			},
 			{
 				name: "mp3",
 				value: "Attacher un fichier audio au message. Formats: `mp3`, `webm`, `wav`, `flac`",
-				inline: true
 			},
 			{
 				name: "youtube",
 				value: "Possible de ne pas specifier la source:\n`lp play https://youtu.be/dQw4w9WgXcQ`"
+			},
+			{
+				name: "deezer",
+				value: "Ne support que les pistes (pas de playlists):\n`lp play deezer https://www.deezer.com/fr/track/61064534`"
 			}
 		]
 	}
