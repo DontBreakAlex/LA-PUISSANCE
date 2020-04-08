@@ -69,6 +69,7 @@ abstract class Player {
 	abstract clone(arg0: Message, arg1: string[], channel: TextChannel): Promise<Player>;
 	abstract test(arg0: string): boolean;
 	abstract announce(arg0: TextChannel): void;
+	abstract title: string;
 }
 
 class PlayerQueue extends Array<Player> {
