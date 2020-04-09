@@ -1,11 +1,14 @@
 import Command from './command';
-import { Message, MessageEmbed } from 'discord.js';
+import { ClientUser, Message, MessageEmbed } from 'discord.js';
+import Paus from './pause';
+import Skip from './skip';
+import Stop from './stop';
 
 const emojis = ['⏯', '⏩', '⏹']
 
-export default class Queue extends Command {
+export default new class Queue extends Command {
 	test(command: string): boolean {
-		return command == 'pause';
+		return command == 'queue';
 	}
 
 	async execute(message: Message, array: string[]) {
@@ -30,15 +33,21 @@ export default class Queue extends Command {
 					{ max: 1, time: 120_000, dispose: false, errors: ["time"] }
 				);
 				switch (<string>collected.firstKey()) {
-					case '⏹':
+					case '⏹': Stop.execute(message, array); break;
+					case '⏩': Skip.execute(message, array); break;
+					case '⏯': Paus.execute(message, array); break;
 				}
+				let reaction = collected.first();
+				if (!reaction) continue;
+				let id = reaction.users.cache.findKey(value => !(value instanceof ClientUser))
+				reaction.users.remove(id);
 			}
 		} catch {}
 	}
 
 	helpSummary = {
 		text: "Met la queue en pause",
-		prefix: "pause"
+		prefix: "queue"
 	};
 
 	help = {

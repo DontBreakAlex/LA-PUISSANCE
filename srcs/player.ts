@@ -81,6 +81,7 @@ class PlayerQueue extends Array<Player> {
 	parent: GuildStatus;
 
 	async play(channel: TextChannel, member: GuildMember) {
+		if (this.parent.dispatcher?.paused) this.parent.dispatcher.resume();
 		if (this.parent.playing == Playing.None && this.length != 0) {
 			if (!this.parent.voice) {
 				if (!member.voice.channel) {
@@ -89,12 +90,14 @@ class PlayerQueue extends Array<Player> {
 				}
 				this.parent.voice = await member.voice.channel.join();
 			}
+			this.parent.playing = Playing.Queue;
 			while (this.length != 0) {
 				let Player = <Player>this.shift();
 				this.parent.dispatcher = Player.play(this.parent.voice);
 				Player.announce(channel);
 				await DispatcherEnd(this.parent.dispatcher);
 			}
+			this.parent.playing = Playing.None;
 			this.parent.voice.disconnect();
 			delete this.parent.voice;
 			channel.send(`Il n'y a plus rien à lire, je vous emmerde et je rentre à ma maison !`)
@@ -103,7 +106,6 @@ class PlayerQueue extends Array<Player> {
 
 	flush() {
 		this.length = 0;
-		this.parent.dispatcher?.end();
 	}
 }
 
@@ -113,68 +115,4 @@ async function DispatcherEnd(dispatcher: StreamDispatcher) {
 	return Events.once(dispatcher, 'finish');
 }
 
-class Skip extends Command {
-	test(command: string) {
-		return command == 'skip'
-	}
-
-	async execute(message: Message, array: string[]) {
-		if (message.guild)
-				message.guild.status.dispatcher?.end();
-	}
-
-	helpSummary = {
-		text: "Passe au prochain morceau de la queue",
-		prefix: "skip"
-	}
-
-	help = {
-		title: "Skip",
-		fields: [
-			{
-				name: "Syntaxe",
-				value: "`lp skip`",
-				inline: true
-			},
-			{
-				name: "Description",
-				value: "Passe au prochain morceau de la queue"
-			}
-		]
-	}
-}
-
-class Stop extends Command {
-	test(command: string) {
-		return command == 'stop'
-	}
-
-	async execute(message: Message, array: string[]) {
-		if (message.guild) {
-			message.guild.status.dispatcher?.end();
-			message.guild.status.queue.flush();
-		}
-	}
-
-	helpSummary = {
-		text: "Stoppe la lecture de la queue et la vide",
-		prefix: "stop"
-	}
-
-	help = {
-		title: "Stop",
-		fields: [
-			{
-				name: "Syntaxe",
-				value: "`lp stop`",
-				inline: true
-			},
-			{
-				name: "Description",
-				value: "Stoppe la lecture de la queue et la vide"
-			}
-		]
-	}
-}
-
-export { Play, Player, PlayerQueue, Skip, Stop }
+export { Play, Player, PlayerQueue }

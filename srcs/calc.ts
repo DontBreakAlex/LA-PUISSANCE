@@ -1,7 +1,7 @@
 import Command from './command'
 import { Message } from "discord.js"
 
-export default class Calc extends Command {
+export default new class Calc extends Command {
 	test(command: string): boolean {
 		return command == 'calc';
 	}

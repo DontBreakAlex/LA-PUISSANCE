@@ -1,4 +1,4 @@
-import { Message, CollectorFilter } from 'discord.js'
+import { Message, ClientUser } from 'discord.js'
 import Command from './command'
 import { MessageEmbed } from 'discord.js';
 
@@ -41,6 +41,10 @@ export default
 			);
 			let index = emojis.indexOf(<string>collected.firstKey())
 			message.channel.send(new MessageEmbed(Commands[index].help))
+			let reaction = collected.first();
+			if (!reaction) continue;
+			let id = reaction.users.cache.findKey(value => !(value instanceof ClientUser))
+			reaction.users.remove(id);
 		}
 	} catch {}
 }
