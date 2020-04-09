@@ -1,7 +1,7 @@
 import Command from './command';
 import { Message } from "discord.js"
 
-export default class Pause extends Command {
+export default new class Pause extends Command {
 	test(command: string): boolean {
 		return command == 'pause';
 	}

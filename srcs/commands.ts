@@ -1,14 +1,18 @@
 import Calc from './calc';
 import { Urss, Rick } from './simple_mp3';
-import { Play, Skip, Stop } from './player';
+import { Play } from './player';
 import Pause from './pause';
+import Skip from './skip';
+import Stop from './stop';
+import Queue from './queue';
 
 export default [
 	new Play(),
-	new Skip(),
-	new Stop(),
-	new Calc(),
+	Skip,
+	Stop,
+	Pause,
+	Calc,
+	Queue,
 	new Rick(),
-	new Urss(),
-	new Pause()
+	new Urss()
 ]
