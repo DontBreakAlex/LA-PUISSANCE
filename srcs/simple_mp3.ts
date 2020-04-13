@@ -3,7 +3,7 @@ import { Message, StreamDispatcher, MessageEmbed, VoiceChannel } from 'discord.j
 import { Playing } from './guild_map';
 
 /** WARNING:
- * 		This files suffers from code duplication
+ * 		This file suffers from code duplication
  */
 
 function bindEvent(dispatcher: StreamDispatcher, cb: () => void) {
@@ -75,8 +75,7 @@ class Rick extends Command {
 		if (!message.guild || !message.member) return;
 		let status = message.guild.status;
 		if (status.playing == Playing.None) {
-			let debug = message.content.split(' ')[2].replace(/\D/g,'');
-			let member = message.guild.member(debug);
+			let member = message.guild.member(message.content.split(' ')[2].replace(/\D/g,''));
 			if (member) {
 				let vChannel = member.voice.channel;
 				if (!vChannel)
@@ -124,4 +123,50 @@ class Rick extends Command {
 	}
 }
 
-export { Urss, Rick }
+class Goodenough extends Command {
+	test(command: string) {
+		return command == 'goodenough'
+	}
+
+	async execute(message: Message, array: string[]) {
+		if (!message.guild || !message.member) return;
+		let status = message.guild.status;
+		if (status.playing == Playing.None) {
+			let vChannel = message.member.voice.channel
+			if (!vChannel)
+				message.channel.send("Mec, t'es pas dans un salon vocal !");
+			else {
+				let connection = await vChannel.join();
+				let dispatcher = connection.play('./ressources/goodenough.webm');
+				bindEvent(dispatcher, () => {
+					(<VoiceChannel>vChannel).leave();
+					status.playing = Playing.None;
+				})
+				status.playing = Playing.Generic
+				status.dispatcher = dispatcher;
+			}
+		} else if (status.playing == Playing.Generic)
+			(<StreamDispatcher>status.dispatcher).end();
+		else
+			message.channel.send("Je suis déjà en train de lire quelque chose !");
+	}
+
+	helpSummary = {
+		text: "Oof, c'est pas si mal !",
+		prefix: "goodenough"
+	}
+
+	help = {
+		title: "David Goodenough",
+		image: { url: "https://pbs.twimg.com/profile_images/1216150922537177088/WuyhBj19_400x400.jpg" },
+		fields: [
+			{
+				name: "Syntaxe",
+				value: "`lp goodenough`",
+				inline: true
+			}
+		]
+	}
+}
+
+export { Urss, Rick, Goodenough }

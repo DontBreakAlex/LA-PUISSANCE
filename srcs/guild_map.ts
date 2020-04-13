@@ -11,7 +11,8 @@ enum Playing {
 	None,
 	Urss,
 	Rick,
-	Queue
+	Queue,
+	Generic
 }
 
 class GuildStatus {
