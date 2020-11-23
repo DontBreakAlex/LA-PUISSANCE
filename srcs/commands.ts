@@ -5,6 +5,7 @@ import Pause from './pause';
 import Skip from './skip';
 import Stop from './stop';
 import Queue from './queue';
+import Service from './service';
 
 export default [
 	new Play(),
@@ -15,5 +16,6 @@ export default [
 	Queue,
 	new Rick(),
 	new Urss(),
-	new Goodenough()
+	new Goodenough(),
+	Service
 ]
