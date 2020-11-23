@@ -31,7 +31,7 @@ export default new class Service extends Command {
 		} else {
 			process.once('exit', (code, signal) => {
 				if (code == 0) {
-					message.channel.send(`Serveur ${array[2]} ${array[1] == 'start' ? 'démaré' : 'arrêté'}`);
+					message.channel.send(`Serveur ${array[1]} ${array[0] == 'start' ? 'démaré' : 'arrêté'}`);
 				} else {
 					message.channel.send(`Erreur interne: ${code}`);
 				}
