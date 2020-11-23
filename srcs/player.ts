@@ -93,9 +93,11 @@ class PlayerQueue extends Array<Player> {
 			this.parent.playing = Playing.Queue;
 			while (this.length != 0) {
 				let Player = <Player>this.shift();
-				this.parent.dispatcher = Player.play(this.parent.voice);
-				Player.announce(channel);
-				await DispatcherEnd(this.parent.dispatcher);
+				try {
+					this.parent.dispatcher = Player.play(this.parent.voice);
+					Player.announce(channel);
+					await DispatcherEnd(this.parent.dispatcher);
+				} catch {}
 			}
 			this.parent.playing = Playing.None;
 			this.parent.voice.disconnect();
