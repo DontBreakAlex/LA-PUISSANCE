@@ -2,7 +2,7 @@ import { Player } from './player';
 import { Message, MessageEmbed, TextChannel, VoiceConnection } from 'discord.js';
 import ytdl from 'ytdl-core';
 import { Readable } from 'stream';
-import { arl, youtubeKey } from '../config.json';
+import { arl, youtubeKey } from '../../config.json';
 import Youtube from 'youtube.ts';
 import ytParser from 'youtube-duration-format';
 import fs from 'fs';

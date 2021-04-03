@@ -1,5 +1,5 @@
 import { Client, Message, MessageEmbed, TextChannel } from 'discord.js';
-import { discordToken } from '../config.json';
+import { discordToken } from '../../config.json';
 import Commands from './commands';
 import { GuildMap } from './guild_map';
 import Help from './help';

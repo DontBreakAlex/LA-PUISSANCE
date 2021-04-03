@@ -1,6 +1,6 @@
 import Command from './command';
 import { Message } from 'discord.js';
-import { services } from '../config.json';
+import { services } from '../../config.json';
 import { spawn } from 'child_process';
 
 export default new class Service extends Command {

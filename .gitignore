@@ -8,4 +8,9 @@ downloads/*
 !.gitkeep
 downloadedSuccessfully.txt
 downloadLinks.txt
-.yarn/cache
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
