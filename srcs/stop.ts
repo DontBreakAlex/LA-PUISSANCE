@@ -1,9 +1,9 @@
-import Command from './command'
+import Command from './command';
 import { Message } from 'discord.js';
 
 export default new class Stop extends Command {
 	test(command: string) {
-		return command == 'stop'
+		return command == 'stop';
 	}
 
 	async execute(message: Message, array: string[]) {
@@ -17,22 +17,22 @@ export default new class Stop extends Command {
 	}
 
 	helpSummary = {
-		text: "Stoppe la lecture de la queue et la vide",
-		prefix: "stop"
+		text: 'Stoppe la lecture de la queue et la vide',
+		prefix: 'stop'
 	}
 
 	help = {
-		title: "Stop",
+		title: 'Stop',
 		fields: [
 			{
-				name: "Syntaxe",
-				value: "`lp stop`",
+				name: 'Syntaxe',
+				value: '`lp stop`',
 				inline: true
 			},
 			{
-				name: "Description",
-				value: "Stoppe la lecture de la queue et la vide"
+				name: 'Description',
+				value: 'Stoppe la lecture de la queue et la vide'
 			}
 		]
 	}
-}
+};

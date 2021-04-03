@@ -5,6 +5,30 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Launch via NPM",
+			"request": "launch",
+			"runtimeArgs": [
+				"start"
+			],
+			"runtimeExecutable": "npm",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "pwa-node"
+		},
+	{
+		"type": "node",
+		"request": "attach",
+		"name": "Attach to Remote",
+		"address": "192.168.10.77",
+		"port": 9229,
+		"localRoot": "${workspaceFolder}",
+		"remoteRoot": "/home/alexandre/LA-PUISSANCE",
+		"skipFiles": [
+			"<node_internals>/**"
+		]
+	},
+		{
 			"type": "node",
 			"runtimeVersion": "13.6.0",
 			"request": "launch",

@@ -1,7 +1,7 @@
-import Command from './command'
-import { Message } from "discord.js"
-import { services } from "../config.json"
-import { spawn } from 'child_process'
+import Command from './command';
+import { Message } from 'discord.js';
+import { services } from '../config.json';
+import { spawn } from 'child_process';
 
 export default new class Service extends Command {
 	constructor() {
@@ -20,37 +20,37 @@ export default new class Service extends Command {
 			return;
 		}
 		if (array[0] == 'start') {
-			process = spawn(service.start, { shell: true, stdio: "ignore" });
+			process = spawn(service.start, { shell: true, stdio: 'ignore' });
 		} else if (array[0] == 'stop') {
-			process = spawn(service.stop, { shell: true, stdio: "ignore" });
+			process = spawn(service.stop, { shell: true, stdio: 'ignore' });
 		}
 
 		if (!process) {
-			message.channel.send(`Erreur interne: spawn failure`);
+			message.channel.send('Erreur interne: spawn failure');
 			return;
 		} else {
-			process.once('exit', (code, signal) => {
+			process.once('exit', code => {
 				if (code == 0) {
 					message.channel.send(`Serveur ${array[1]} ${array[0] == 'start' ? 'démaré' : 'arrêté'}`);
 				} else {
 					message.channel.send(`Erreur interne: ${code}`);
 				}
-			})
+			});
 		}
 	}
 
 	helpSummary = {
-		text: "Démarre ou stoppe un serveur",
-		prefix: "start / stop"
+		text: 'Démarre ou stoppe un serveur',
+		prefix: 'start / stop'
 	};
 
 	help = {
-		title: "Server",
+		title: 'Server',
 		fields: [
 			{
-				name: "Exemple",
-				value: "lp start astroneer"
+				name: 'Exemple',
+				value: 'lp start astroneer'
 			}
 		]
 	}
-}
+};

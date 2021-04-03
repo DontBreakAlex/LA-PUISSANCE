@@ -1,5 +1,5 @@
 import Command from './command';
-import { Message } from "discord.js"
+import { Message } from 'discord.js';
 
 export default new class Pause extends Command {
 	test(command: string): boolean {
@@ -16,21 +16,21 @@ export default new class Pause extends Command {
 	}
 
 	helpSummary = {
-		text: "Met la queue en pause",
-		prefix: "pause"
+		text: 'Met la queue en pause',
+		prefix: 'pause'
 	};
 
 	help = {
-		title: "Pause",
+		title: 'Pause',
 		fields: [
 			{
-				name: "Syntaxe",
-				value: "`lp pause`",
+				name: 'Syntaxe',
+				value: '`lp pause`'
 			},
 			{
-				name: "Astuce",
-				value: "Peux aussi enlever la pause"
+				name: 'Astuce',
+				value: 'Peux aussi enlever la pause'
 			}
 		]
 	}
-}
+};

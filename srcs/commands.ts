@@ -1,5 +1,5 @@
 import Calc from './calc';
-import { Urss, Rick, Goodenough } from './simple_mp3';
+import { Goodenough, Rick, Urss } from './simple_mp3';
 import { Play } from './player';
 import Pause from './pause';
 import Skip from './skip';
@@ -18,4 +18,4 @@ export default [
 	new Urss(),
 	new Goodenough(),
 	Service
-]
+];

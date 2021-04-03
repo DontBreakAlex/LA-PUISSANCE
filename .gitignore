@@ -8,3 +8,4 @@ downloads/*
 !.gitkeep
 downloadedSuccessfully.txt
 downloadLinks.txt
+.yarn/cache

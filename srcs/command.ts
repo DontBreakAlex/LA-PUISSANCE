@@ -1,4 +1,4 @@
-import { Message, MessageEmbedOptions } from 'discord.js'
+import { Message, MessageEmbedOptions } from 'discord.js';
 
 export default abstract class Command {
 	abstract test(arg0: string): boolean;

@@ -1,5 +1,5 @@
-import { PlayerQueue } from './player'
-import { Guild, StreamDispatcher, VoiceConnection } from 'discord.js'
+import { PlayerQueue } from './player';
+import { StreamDispatcher, VoiceConnection } from 'discord.js';
 
 declare module 'discord.js' {
 	interface Guild {
@@ -16,7 +16,7 @@ enum Playing {
 }
 
 class GuildStatus {
-	count: number = 0;
+	count = 0;
 	playing: Playing = Playing.None;
 	dispatcher?: StreamDispatcher;
 	queue: PlayerQueue = new PlayerQueue(this);
@@ -31,4 +31,4 @@ class GuildMap extends Map<string, GuildStatus> {
 	}
 }
 
-export { GuildStatus, GuildMap, Playing }
+export { GuildStatus, GuildMap, Playing };

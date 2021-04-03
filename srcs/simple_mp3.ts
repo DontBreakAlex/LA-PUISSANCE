@@ -1,5 +1,5 @@
-import Command from './command'
-import { Message, StreamDispatcher, MessageEmbed, VoiceChannel } from 'discord.js';
+import Command from './command';
+import { Message, MessageEmbed, StreamDispatcher, VoiceChannel } from 'discord.js';
 import { Playing } from './guild_map';
 
 /** WARNING:
@@ -13,160 +13,163 @@ function bindEvent(dispatcher: StreamDispatcher, cb: () => void) {
 }
 
 class Urss extends Command {
-	test(command: string) {
-		return command == 'urss'
+	test(command: string): boolean {
+		return command == 'urss';
 	}
 
-	async execute(message: Message, array: string[]) {
-		if (!message.guild || !message.member) return;
-		let status = message.guild.status;
+	async execute(message: Message): Promise<void> {
+		if (!message.guild || !message.member) 
+			return;
+		const status = message.guild.status;
 		if (status.playing == Playing.None) {
-			let vChannel = message.member.voice.channel
+			const vChannel = message.member.voice.channel;
 			if (!vChannel)
-				message.channel.send("Mec, t'es pas dans un salon vocal !");
+				message.channel.send('Mec, t\'es pas dans un salon vocal !');
 			else {
-				let connection = await vChannel.join();
-				let dispatcher = connection.play('./ressources/urss.webm');
+				const connection = await vChannel.join();
+				const dispatcher = connection.play('./ressources/urss.webm');
 				bindEvent(dispatcher, () => {
 					(<VoiceChannel>vChannel).leave();
 					status.playing = Playing.None;
-				})
-				status.playing = Playing.Urss
+				});
+				status.playing = Playing.Urss;
 				status.dispatcher = dispatcher;
 			}
 		} else if (status.playing == Playing.Urss) {
 			(<StreamDispatcher>status.dispatcher).end(); // If playing is at Urss, dispatcher can't be null
 			message.channel.send(new MessageEmbed({
 				author: { name: 'Staline', icon_url: 'http://ekouter.net/img/img/Staline.jpg' },
-				description: "Quoi ?! Vous n'écoutez pas l'hymne soviétique jusqu'au bout ? J'envoie les KV-1 de l'armée rouge !"
+				description: 'Quoi ?! Vous n\'écoutez pas l\'hymne soviétique jusqu\'au bout ? J\'envoie les KV-1 de l\'armée rouge !'
 			}));
 		}
 		else
-			message.channel.send("Je suis déjà en train de lire quelque chose !");
+			message.channel.send('Je suis déjà en train de lire quelque chose !');
 	}
 
 	helpSummary = {
-		text: "Joue l'hymne sovitétique",
-		prefix: "urss"
+		text: 'Joue l\'hymne sovitétique',
+		prefix: 'urss'
 	}
 
 	help = {
-		title: "Urss",
+		title: 'Urss',
 		fields: [
 			{
-				name: "Syntaxe",
-				value: "`lp urss`",
+				name: 'Syntaxe',
+				value: '`lp urss`',
 				inline: true
 			},
 			{
-				name: "Description",
-				value: "Joue l'hymne sovitétique.\nRépéter la commande stoppe la lecture (à vos risques et prérils)"
+				name: 'Description',
+				value: 'Joue l\'hymne sovitétique.\nRépéter la commande stoppe la lecture (à vos risques et prérils)'
 			}
 		]
 	}
 }
 
 class Rick extends Command {
-	test(command: string) {
-		return command == 'rick'
+	test(command: string): boolean {
+		return command == 'rick';
 	}
 
-	async execute(message: Message, array: string[]) {
-		if (!message.guild || !message.member) return;
-		let status = message.guild.status;
+	async execute(message: Message, array: string[]): Promise<void> {
+		if (!message.guild || !message.member) 
+			return;
+		const status = message.guild.status;
 		if (status.playing == Playing.None) {
-			let member = message.guild.member(message.content.split(' ')[2].replace(/\D/g,''));
+			const member = message.guild.member(message.content.split(' ')[2].replace(/\D/g,''));
 			if (member) {
-				let vChannel = member.voice.channel;
+				const vChannel = member.voice.channel;
 				if (!vChannel)
 					message.channel.send(`${array[1].slice(1)} n'est pas dans un salon !`);
 				else {
-					let connection = await vChannel.join();
-					let dispatcher = connection.play('./ressources/rickroll.webm')
+					const connection = await vChannel.join();
+					const dispatcher = connection.play('./ressources/rickroll.webm');
 					bindEvent(dispatcher, () => {
 						(<VoiceChannel>vChannel).leave();
 						status.playing = Playing.None;
-					})
-					status.playing = Playing.Rick
+					});
+					status.playing = Playing.Rick;
 					status.dispatcher = dispatcher;
 				}
 			}
 		} else if (status.playing == Playing.Rick)
 			(<StreamDispatcher>status.dispatcher).end();
 		else
-			message.channel.send("Je suis déjà en train de lire quelque chose !");
+			message.channel.send('Je suis déjà en train de lire quelque chose !');
 	}
 
 	helpSummary = {
-		text: "Trolle un utilisateur",
-		prefix: "rick"
+		text: 'Trolle un utilisateur',
+		prefix: 'rick'
 	}
 
 	help = {
-		title: "Rick",
+		title: 'Rick',
 		fields: [
 			{
-				name: "Syntaxe",
-				value: "`lp rick <cible>`",
+				name: 'Syntaxe',
+				value: '`lp rick <cible>`',
 				inline: true
 			},
 			{
-				name: "Exemple",
-				value: "`lp rick @Michel`",
+				name: 'Exemple',
+				value: '`lp rick @Michel`',
 				inline: true
 			},
 			{
-				name: "Description",
-				value: "Trolle la persone cible.\nRépeter la commande stoppe le trollage en cours\n`-. . ...- . .-.     --. --- -. -. .-     --. .. ...- .     -.-- --- ..-     ..- .--.`"
+				name: 'Description',
+				value: 'Trolle la persone cible.\nRépeter la commande stoppe le trollage en cours\n`-. . ...- . .-.     --. --- -. -. .-     --. .. ...- .     -.-- --- ..-     ..- .--.`'
 			}
 		]
 	}
 }
 
 class Goodenough extends Command {
-	test(command: string) {
-		return command == 'goodenough'
+	test(command: string): boolean {
+		return command == 'goodenough';
 	}
 
-	async execute(message: Message, array: string[]) {
-		if (!message.guild || !message.member) return;
-		let status = message.guild.status;
+	async execute(message: Message): Promise<void> {
+		if (!message.guild || !message.member) 
+			return;
+		const status = message.guild.status;
 		if (status.playing == Playing.None) {
-			let vChannel = message.member.voice.channel
+			const vChannel = message.member.voice.channel;
 			if (!vChannel)
-				message.channel.send("Mec, t'es pas dans un salon vocal !");
+				message.channel.send('Mec, t\'es pas dans un salon vocal !');
 			else {
-				let connection = await vChannel.join();
-				let dispatcher = connection.play('./ressources/goodenough.webm');
+				const connection = await vChannel.join();
+				const dispatcher = connection.play('./ressources/goodenough.webm');
 				bindEvent(dispatcher, () => {
 					(<VoiceChannel>vChannel).leave();
 					status.playing = Playing.None;
-				})
-				status.playing = Playing.Generic
+				});
+				status.playing = Playing.Generic;
 				status.dispatcher = dispatcher;
 			}
 		} else if (status.playing == Playing.Generic)
 			(<StreamDispatcher>status.dispatcher).end();
 		else
-			message.channel.send("Je suis déjà en train de lire quelque chose !");
+			message.channel.send('Je suis déjà en train de lire quelque chose !');
 	}
 
 	helpSummary = {
-		text: "Oof, c'est pas si mal !",
-		prefix: "goodenough"
+		text: 'Oof, c\'est pas si mal !',
+		prefix: 'goodenough'
 	}
 
 	help = {
-		title: "David Goodenough",
-		image: { url: "https://pbs.twimg.com/profile_images/1216150922537177088/WuyhBj19_400x400.jpg" },
+		title: 'David Goodenough',
+		image: { url: 'https://pbs.twimg.com/profile_images/1216150922537177088/WuyhBj19_400x400.jpg' },
 		fields: [
 			{
-				name: "Syntaxe",
-				value: "`lp goodenough`",
+				name: 'Syntaxe',
+				value: '`lp goodenough`',
 				inline: true
 			}
 		]
 	}
 }
 
-export { Urss, Rick, Goodenough }
+export { Urss, Rick, Goodenough };

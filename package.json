@@ -5,7 +5,8 @@
   "main": "build/srcs/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc; node build/srcs/index.js;"
+    "start": "node build/srcs/index.js;",
+    "build": "tsc -p ."
   },
   "author": "Alexandre Seo",
   "license": "GPL-2.0-only",
@@ -14,19 +15,26 @@
     "@types/node": "^13.9.2",
     "@types/node-fetch": "^2.5.5",
     "@types/ws": "^7.2.3",
-    "bufferutil": "^4.0.1",
-    "discord.js": "^12.0.2",
-    "erlpack": "github:discordapp/erlpack",
+    "bufferutil": "^4.0.3",
+    "discord.js": "^12.5.3",
+    "erlpack": "^0.1.3",
+    "node-fetch": "^2.6.1",
+    "node-gyp": "^8.0.0",
     "sodium": "^3.0.2",
-    "typescript": "^3.8.3",
-    "utf-8-validate": "^5.0.2",
+    "typescript": "^4.2.3",
+    "utf-8-validate": "^5.0.4",
     "youtube-duration-format": "^0.2.0",
-    "youtube.ts": "^0.1.3",
-    "ytdl-core": "^2.0.1",
-    "zlib-sync": "^0.1.6"
+    "youtube.ts": "^0.2.0",
+    "ytdl-core": "^4.5.0",
+    "zlib-sync": "^0.1.7"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/DontBreakAlex/LA-PUISSANCE.git"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
+    "eslint": "^7.23.0"
   }
 }

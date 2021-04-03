@@ -1,31 +1,32 @@
 import { Player } from './player';
-import { VoiceConnection, Message, TextChannel, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed, TextChannel, VoiceConnection } from 'discord.js';
 import ytdl from 'ytdl-core';
 import { Readable } from 'stream';
-import { youtubeKey, arl } from '../config.json';
-import Youtube, { YoutubeVideo } from 'youtube.ts'
+import { arl, youtubeKey } from '../config.json';
+import Youtube from 'youtube.ts';
 import ytParser from 'youtube-duration-format';
 import fs from 'fs';
 import https from 'https';
 import { spawn } from 'child_process';
 import fetch from 'node-fetch';
 
-const error = "J'ai pas réussi à ajouter ça à la queue !";
+const error = 'J\'ai pas réussi à ajouter ça à la queue !';
 class mp3 implements Player {
-	stream: string | Buffer | import("stream").Stream = '';
-	title: string = '';
+	stream: string | Buffer | import('stream').Stream = '';
+	title = '';
 
 	test(command: string) {
 		return command == 'mp3';
 	}
 
 	async clone(message: Message, array: string[], channel: TextChannel) {
-		let clone = new mp3();
-		let attachement = message.attachments.first()
-		if (!attachement) throw `Mec, t'as rien compris, il faut attacher un fichier audio au message !`;
+		const clone = new mp3();
+		const attachement = message.attachments.first();
+		if (!attachement) 
+			throw 'Mec, t\'as rien compris, il faut attacher un fichier audio au message !';
 		clone.stream = attachement.attachment;
 		clone.title = attachement.name || '';
-		channel.send(`J'ai ajouté ${attachement.name} à la queue !`)
+		channel.send(`J'ai ajouté ${attachement.name} à la queue !`);
 		return clone;
 	}
 
@@ -34,7 +35,7 @@ class mp3 implements Player {
 	}
 
 	announce(channel: TextChannel) {
-		channel.send(`Lecture de ${this.title} en cours !`)
+		channel.send(`Lecture de ${this.title} en cours !`);
 	}
 
 }
@@ -45,34 +46,35 @@ class youtube implements Player {
 	title = '';
 
 	test(command: string) {
-		return command.includes('youtu')
+		return command.includes('youtu');
 	}
 
 	async clone(message: Message, array: string[], channel: TextChannel) {
-		let clone = new youtube();
-		let url = array[2] || array[1]
-		if (url.indexOf('https://') == -1) url = `https://${url}`;
+		const clone = new youtube();
+		let url = array[2] || array[1];
+		if (url.indexOf('https://') == -1) 
+			url = `https://${url}`;
 		clone.readable = ytdl(url, { highWaterMark: 1 << 22 });
-		let video = await this.youtube.videos.get(url);
+		const video = await this.youtube.videos.get(url);
 		clone.title = video.snippet.title;
 		channel.send(new MessageEmbed({
 			title: video.snippet.title,
 			url: url,
-			description: `Je l'ai ajouté ça à la queue`,
+			description: 'Je l\'ai ajouté ça à la queue',
 			thumbnail: video.snippet.thumbnails.default,
 			fields: [
 				{
-					name: `Chaine`,
+					name: 'Chaine',
 					value: video.snippet.channelTitle,
 					inline: true
 				},
 				{
-					name: `Durée`,
+					name: 'Durée',
 					value: ytParser(video.contentDetails.duration),
 					inline: true
 				},
 				{
-					name: `Vues`,
+					name: 'Vues',
 					value: video.statistics.viewCount,
 					inline: true
 				}
@@ -82,11 +84,11 @@ class youtube implements Player {
 	}
 
 	play(connection: VoiceConnection) {
-		return connection.play(<Readable>this.readable)
+		return connection.play(<Readable>this.readable);
 	}
 
 	announce(channel: TextChannel) {
-		channel.send(`Lecture de ${this.title} en cours !`)
+		channel.send(`Lecture de ${this.title} en cours !`);
 	}
 }
 
@@ -96,41 +98,45 @@ class deezer implements Player {
 
 	constructor() {
 		fs.stat('SMLoadr-linux-x64', err => {
-			if (!err) return;
-			if (err.code != 'ENOENT') throw err;
-			console.log('Downloading SMLoadr...')
+			if (!err) 
+				return;
+			if (err.code != 'ENOENT') 
+				throw err;
+			console.log('Downloading SMLoadr...');
 			const zip = fs.createWriteStream('tmp.zip');
 			https.get('https://git.fuwafuwa.moe/attachments/9a051535-b6d7-44ae-bee2-bb9aef22e189', resp => { resp.pipe(zip).on('finish', () => {
-			spawn('unzip', ['tmp.zip']).on('exit', () => {
-			fs.writeFile('SMLoadrConfig.json', `{\n"saveLayout": "",\n"arl": "${arl}"\n}`, () => {});
-			fs.chmod('SMLoadr-linux-x64', '0777', () => {})
-			fs.unlink('tmp.zip', () => {})
-			console.log('Done !')
-			})})})
-		})
+				spawn('unzip', ['tmp.zip']).on('exit', () => {
+					fs.writeFile('SMLoadrConfig.json', `{\n"saveLayout": "",\n"arl": "${arl}"\n}`, () => {});
+					fs.chmod('SMLoadr-linux-x64', '0777', () => {});
+					fs.unlink('tmp.zip', () => {});
+					console.log('Done !');
+				});});});
+		});
 	}
 
 	test(command: string) {
-		return command.includes('deezer')
+		return command.includes('deezer');
 	}
 
 	async clone(message: Message, array: string[], channel: TextChannel) {
-		let clone = new deezer();
-		let url = array[2] || array[1];
-		let id = <string>url.split('/').pop()
-		if (!url.includes('track')) throw error + '(Err 0)'
+		const clone = new deezer();
+		const url = array[2] || array[1];
+		const id = <string>url.split('/').pop();
+		if (!url.includes('track')) 
+			throw error + '(Err 0)';
 		clone.file = `./downloads/${id}.mp3`;
-		let [track] = await Promise.all([
+		const [track] = await Promise.all([
 			this.makeApiCall(id),
 			clone.download(url, id)
-		])
-		if (!track) throw error + '(Err 2)'
+		]);
+		if (!track) 
+			throw error + '(Err 2)';
 		clone.title = track.title;
-		let h = track.duration / 3600 | 0, m = track.duration % 3600 / 60 | 0, s = track.duration % 60;
+		const h = track.duration / 3600 | 0, m = track.duration % 3600 / 60 | 0, s = track.duration % 60;
 		channel.send(new MessageEmbed({
 			title: track.title,
 			url: track.link,
-			description: `Je l'ai ajouté ça à la queue`,
+			description: 'Je l\'ai ajouté ça à la queue',
 			thumbnail: { url: track.album.cover },
 			fields: [
 				{
@@ -149,30 +155,33 @@ class deezer implements Player {
 					inline: true
 				}
 			]
-		}))
+		}));
 		return clone;
 	}
 
 	async download(url: string, id: string): Promise<void> {
-		if (await this.exists(this.file)) return;
+		if (await this.exists(this.file)) 
+			return;
 		return new Promise((resolve, reject) => {
-			let SMLoadr = spawn('./SMLoadr-linux-x64', ['--url', url, '-p', `./tmp/${id}/`]);
+			const SMLoadr = spawn('./SMLoadr-linux-x64', ['--url', url, '-p', `./tmp/${id}/`]);
 			SMLoadr.on('exit', code => {
-				if (code != 1) reject(`${error} (Err 3:${code})`)
-				let find = spawn('find', [`./tmp/${id}/`, '-name', '*.mp3', '-print', '-exec', 'mv', '{}', `./downloads/${id}.mp3`, ';']);
-				let title: string;
+				if (code != 1) 
+					reject(`${error} (Err 3:${code})`);
+				const find = spawn('find', [`./tmp/${id}/`, '-name', '*.mp3', '-print', '-exec', 'mv', '{}', `./downloads/${id}.mp3`, ';']);
 				find.on('exit', code => {
-					if (code == 1) reject(error + '(Err 1)')
+					if (code == 1) 
+						reject(error + '(Err 1)');
 					spawn('rm', ['-r', `./tmp/${id}`]);
 					resolve();
-				})
-			})
-		})
+				});
+			});
+		});
 	}
 
 	async makeApiCall(id: string): Promise<Track|undefined> {
-		let resp = await fetch(`https://api.deezer.com/track/${id}`);
-		if (resp.ok) return await resp.json();
+		const resp = await fetch(`https://api.deezer.com/track/${id}`);
+		if (resp.ok) 
+			return await resp.json();
 	}
 
 	play(connection: VoiceConnection) {
@@ -180,16 +189,16 @@ class deezer implements Player {
 	}
 
 	announce(channel: TextChannel) {
-		channel.send(`Lecture de ${this.title} en cours !`)
+		channel.send(`Lecture de ${this.title} en cours !`);
 	}
 
 	async exists(file: string): Promise<boolean> {
 		return new Promise(resolve => {
 			fs.stat(file, err => {
 				resolve(!err);
-			})
-		})
+			});
+		});
 	}
 }
 
-export default [ new mp3, new youtube, new deezer ]
+export default [ new mp3, new youtube, new deezer ];
