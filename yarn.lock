@@ -121,7 +121,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/body-parser@npm:*":
+"@types/body-parser@npm:*, @types/body-parser@npm:^1":
   version: 1.19.0
   resolution: "@types/body-parser@npm:1.19.0"
   dependencies:
@@ -231,6 +231,13 @@ __metadata:
     "@types/mime": ^1
     "@types/node": "*"
   checksum: f261127514057b5c038d76259128d7b765dd92bfeaf769d05b8ddf5f254d066ce6142a935e2fc707bb3009d6544a979591852f0d135d0ed4d0c56db08738df6b
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^8.3.0":
+  version: 8.3.0
+  resolution: "@types/uuid@npm:8.3.0"
+  checksum: 620985aed8fdb4aed153daca5235f4303457a67a4d181efac0021712eabd9edd7e88895f79730c0e651effde7633b1b61e49a81519ac8d4e75019d2ac9b6412f
   languageName: node
   linkType: hard
 
@@ -557,6 +564,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base64-js@npm:^1.3.1":
+  version: 1.5.1
+  resolution: "base64-js@npm:1.5.1"
+  checksum: c1b41a26ddc6620eb7f1ee6c29c812f5942a4e328e74263f995872cfb8ca3aee08542beb25cd10fd7ef16e4f16603e25c35a26e776c01fd55277e5035e829e0e
+  languageName: node
+  linkType: hard
+
+"big-integer@npm:^1.6.48":
+  version: 1.6.48
+  resolution: "big-integer@npm:1.6.48"
+  checksum: 311f86a45e28513ddb12415082c5f437b868d80914bff71689a99e16f597beee5c0f12b0c9e65713b70b0516e6ed27f4006e256ea5393bfcf68bb18dc453f976
+  languageName: node
+  linkType: hard
+
 "bindings@npm:^1.5.0":
   version: 1.5.0
   resolution: "bindings@npm:1.5.0"
@@ -566,7 +587,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.19.0":
+"body-parser@npm:1.19.0, body-parser@npm:^1.19.0":
   version: 1.19.0
   resolution: "body-parser@npm:1.19.0"
   dependencies:
@@ -600,6 +621,16 @@ __metadata:
   dependencies:
     fill-range: ^7.0.1
   checksum: f3493181c3e91a1333d3c9afc9b3263a3f62f4ced0b033c372efc1373b48a7699557f4e04026b232a8556e043ca5360a9d3008c33852350138d4b0ea57558b8d
+  languageName: node
+  linkType: hard
+
+"buffer@npm:^5.6.0":
+  version: 5.7.1
+  resolution: "buffer@npm:5.7.1"
+  dependencies:
+    base64-js: ^1.3.1
+    ieee754: ^1.1.13
+  checksum: 1750ac396eb36e0157ff5299509723ac0681338ef6cd40b039bc86d59c8b9a9494e99db992836eb6d637de0b270b53ec1a62d4a1c9faeaa51468cc340e553984
   languageName: node
   linkType: hard
 
@@ -1599,6 +1630,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ieee754@npm:^1.1.13":
+  version: 1.2.1
+  resolution: "ieee754@npm:1.2.1"
+  checksum: 6c1cfab995ecab3b0dbb6cfb7e192686eb02f0f8e788f2d962e1fc02e2d5ab38a85e06d417221f136bd029663a77cdb920d99605d68d3730a05597dd7910426a
+  languageName: node
+  linkType: hard
+
 "ignore-walk@npm:^3.0.1":
   version: 3.0.3
   resolution: "ignore-walk@npm:3.0.3"
@@ -1677,7 +1715,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ini@npm:~1.3.0":
+"ini@npm:^1.3.5, ini@npm:~1.3.0":
   version: 1.3.8
   resolution: "ini@npm:1.3.8"
   checksum: 62189ce7ea44c5778e757e4232c581212e838f3c39e79d931bb9152fd4b9275f09fb20b96afdd60ba9f5d7996b92486cad6cc617fcb84ff4beedd1b33b86221e
@@ -1774,6 +1812,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-typedarray@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "is-typedarray@npm:1.0.0"
+  checksum: 4e21156e7360a5916eded35c5938adf6278299a8055640864eebb251e4351cd605beccddf9af27477e19f753d453412fe0c21379bb54b55cfdf5add263076959
+  languageName: node
+  linkType: hard
+
 "isarray@npm:~1.0.0":
   version: 1.0.0
   resolution: "isarray@npm:1.0.0"
@@ -1833,13 +1878,16 @@ __metadata:
   resolution: "la-puissance@workspace:."
   dependencies:
     "@discordjs/opus": ^0.1.0
+    "@types/body-parser": ^1
     "@types/cookie-parser": ^1.4.2
     "@types/express": ^4.17.11
     "@types/node": ^13.9.2
     "@types/node-fetch": ^2.5.5
+    "@types/uuid": ^8.3.0
     "@types/ws": ^7.2.3
     "@typescript-eslint/eslint-plugin": ^4.20.0
     "@typescript-eslint/parser": ^4.20.0
+    body-parser: ^1.19.0
     bufferutil: ^4.0.3
     cookie-parser: ^1.4.5
     discord.js: ^12.5.3
@@ -1849,8 +1897,11 @@ __metadata:
     node-fetch: ^2.6.1
     node-gyp: ^8.0.0
     sodium: ^3.0.2
+    sodium-native: ^3.2.1
+    sodium-plus: ^0.9.0
     typescript: ^4.2.3
     utf-8-validate: ^5.0.4
+    uuid: ^8.3.2
     youtube-duration-format: ^0.2.0
     youtube.ts: ^0.2.0
     ytdl-core: ^4.5.0
@@ -1865,6 +1916,22 @@ __metadata:
     prelude-ls: ^1.2.1
     type-check: ~0.4.0
   checksum: 2f6ddfb0b956f2cb6b1608253a62b0c30e7392dd3c7b4cf284dfe2889b44d8385eaa81597646e253752c312a960ccb5e4d596968e476d5f6614f4ca60e5218e9
+  languageName: node
+  linkType: hard
+
+"libsodium-wrappers@npm:^0.7.6":
+  version: 0.7.9
+  resolution: "libsodium-wrappers@npm:0.7.9"
+  dependencies:
+    libsodium: ^0.7.0
+  checksum: cf87d39cc7bcac1720e0d83fd52991a8ba2b2e4fb0c5c34ff0abae9fa46256ea7121a16b0158c473a3e0a6bbf8a61aa9266f0f60d61e0a06762c9c9588f78830
+  languageName: node
+  linkType: hard
+
+"libsodium@npm:^0.7.0":
+  version: 0.7.9
+  resolution: "libsodium@npm:0.7.9"
+  checksum: fc5f9d09830fd5049448e8a59593bfcb9149e805d67c3c19629aeae75dbfb86ff5af4d6cb5268934c6f636ca6ee4855ae288bb31555d3b4af627c649a31bab05
   languageName: node
   linkType: hard
 
@@ -2465,6 +2532,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"poly1305-js@npm:^0.4.2":
+  version: 0.4.3
+  resolution: "poly1305-js@npm:0.4.3"
+  dependencies:
+    big-integer: ^1.6.48
+  checksum: ea35923c1b21d29ad4cd75e6bcd3ac5950ec55d39fee6bc7f56be4a32bc05790f7ccd6ff0b092aba018e1726458b16bdf450c2938ab7a234b57418e2fff76d6a
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -2840,6 +2916,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sodium-native@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "sodium-native@npm:3.2.1"
+  dependencies:
+    ini: ^1.3.5
+    node-gyp: latest
+    node-gyp-build: ^4.2.0
+  checksum: 38f215fe645ec2030fa67a92a1a00a4f9f15acd758d4d1985022e9549b2de42aedf981f87a1a50e3940874b407a1b25430938a539982b4ea50820e648e8c1a32
+  languageName: node
+  linkType: hard
+
+"sodium-plus@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "sodium-plus@npm:0.9.0"
+  dependencies:
+    buffer: ^5.6.0
+    libsodium-wrappers: ^0.7.6
+    poly1305-js: ^0.4.2
+    typedarray-to-buffer: ^3.1.5
+    xsalsa20: ^1.1.0
+  peerDependencies:
+    sodium-native: ^3.2.0
+  checksum: 73786f39d210e8ea512c3ff3de534b7e8e40538182ff16b8b47117e92ea3185e03ecafca5ef8f14a054533fcbf77afa24326fcb4f49a5fd17236a08b32205efc
+  languageName: node
+  linkType: hard
+
 "sodium@npm:^3.0.2":
   version: 3.0.2
   resolution: "sodium@npm:3.0.2"
@@ -3099,6 +3201,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typedarray-to-buffer@npm:^3.1.5":
+  version: 3.1.5
+  resolution: "typedarray-to-buffer@npm:3.1.5"
+  dependencies:
+    is-typedarray: ^1.0.0
+  checksum: e6e0e6812acc3496612d81abe026bb6c71bfc0f3daa00716a3236fe37c46a81508de8306df8a29ae81e2a2c4293b6b8067c77b65003e0022134d544902b9acec
+  languageName: node
+  linkType: hard
+
 typescript@^4.2.3:
   version: 4.2.3
   resolution: "typescript@npm:4.2.3"
@@ -3177,6 +3288,15 @@ typescript@^4.2.3:
   languageName: node
   linkType: hard
 
+"uuid@npm:^8.3.2":
+  version: 8.3.2
+  resolution: "uuid@npm:8.3.2"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: aed2bcef341f95635f308fea8831fb9038b18c485fe7e71feb89d2e05602dfecad0cb6f2246fae096d4da425cca6e8a71056f28abd97ad98cf770a2018853248
+  languageName: node
+  linkType: hard
+
 "v8-compile-cache@npm:^2.0.3":
   version: 2.3.0
   resolution: "v8-compile-cache@npm:2.3.0"
@@ -3237,6 +3357,13 @@ typescript@^4.2.3:
     utf-8-validate:
       optional: true
   checksum: ad08761ed753cdd3f7172e9a9efc7d74e7e196623cace2380e5f74ff0abd16196e03223bd4148a34278dcbc653ee3841994635419281cbf303b3f22c589e2ec4
+  languageName: node
+  linkType: hard
+
+"xsalsa20@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "xsalsa20@npm:1.1.0"
+  checksum: b18a4cec7a1ff32eb238f7f48109547a65fa3f2ecfd0a73b21e4f8aca7186b2ddeb36dfb7b80787a811d3cf745b758096442fe1fc23c705f0b31c6043ddbda41
   languageName: node
   linkType: hard
 
