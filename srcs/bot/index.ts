@@ -1,5 +1,5 @@
 import { Client, Message, MessageEmbed, TextChannel } from 'discord.js';
-import { discordToken } from '../../config.json';
+import { discordToken, botPrefix } from '../../config.json';
 import Commands from './commands';
 import { GuildMap } from './guild_map';
 import Help from './help';
@@ -17,7 +17,7 @@ bot.on('ready', () => {
 });
 
 bot.on('message', (message: Message) => {
-	if (message.content.startsWith('lp'))
+	if (message.content.startsWith(botPrefix))
 	{
 		const array = message.cleanContent.split(' ');
 		if (array.length == 1) 

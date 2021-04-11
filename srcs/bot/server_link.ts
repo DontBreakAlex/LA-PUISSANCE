@@ -28,13 +28,13 @@ export default new class Server {
 		this.child.send({ message, cnt });
 	}
 
-	public CreateLoginUrl(userId: string): Promise<string> {
+	public CreateLoginUrl(user: { uid: string; guid: string }): Promise<string> {
 		const cnt = this.counter++;
 		return new Promise(resolve => {
 			this.map.set(cnt, (a: ProducedUrl) => {
 				resolve(a.url);
 			});
-			this.sendMessage({ cmd: Commands.ProduceUrl, uid: userId }, cnt);
+			this.sendMessage({ cmd: Commands.ProduceUrl, user }, cnt);
 		});
 	}
 };

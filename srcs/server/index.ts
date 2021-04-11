@@ -2,64 +2,110 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { v4 as uuid } from 'uuid';
 import bodyParser from 'body-parser';
-import { CryptographyKey, SodiumPlus } from 'sodium-plus';
 import { Commands, ServerReceived } from './messages';
+import { MongoClient, ObjectId } from 'mongodb';
+import { mongoUri, mongoDatabase, fileStoragePath } from '../../config.json';
+import multer from 'multer';
+import { mkdirSync } from 'fs';
+import { join, parse } from 'path';
 
-SodiumPlus.auto().then(async sodium => {
-	const app = express();
-	const Users = new Map<string, string>();
-	const key = new CryptographyKey(Buffer.from('CIqtYHFFZoeg6RHN8Y4rgQi8wNbcSlszabpApvlExz0=', 'base64'));
-	const nonceLength = 24;
-	
+try {
+	mkdirSync(fileStoragePath);
+} catch {}
+const app = express();
+const client = new MongoClient(mongoUri, { useUnifiedTopology: true });
+// This map holds the user that are waiting to log in
+const userMap = new Map<string, { uid: string; guid: string }>();
+const storage = multer.diskStorage({
+	destination: (req, file, callback) => callback(null, fileStoragePath),
+	filename: (req, file, callback) => {
+		if (file.mimetype !== 'audio/mpeg')
+			callback(new Error('Wrong file type'), '');
+		else {
+			const parsed = parse(file.originalname);
+			const filename = `${parsed.name}-${req.user!.uid}${parsed.ext}`;
+			callback(null, filename);
+		}
+	}
+});
+const upload = multer({ storage, limits: { fileSize: 1024 * 1024 } });
+
+type User = { uid: string; guid: string }
+
+client.connect().then(async () => {
+	console.log('Connected to database !');
+
+	const db = client.db(mongoDatabase);
+	const Users = db.collection('Users');
+	const Files = db.collection('Files');
+
 	app.use(cookieParser());
 	app.use(bodyParser.urlencoded({ extended: false }));
 	
 	app.get('/login', async (req, res) => {
 		if (!req.query.p) {
-			res.status(400).send();
+			res.status(400).send('<h1>401 Unauthorized</h1>');
 			return;
 		}
-
-		console.time('Cookie generation');
-		const value = Users.get(req.query.p.toString());
-		const nonce = await sodium.randombytes_buf(nonceLength);
-		const encrypted = await sodium.crypto_secretbox(JSON.stringify(value), nonce, key);
-		const joined = Buffer.concat([nonce, encrypted]).toString('base64');
-		console.log(`Cookie is ${joined.length} bytes long`);
-
-		Users.delete(req.query.p.toString());
-		console.timeEnd('Cookie generation');
-
-		res.cookie('lp', joined, {
-			secure: true,
-			httpOnly: true,
-			sameSite: 'strict'
-		}).redirect('/');
+		const user = userMap.get(req.query.p.toString());
+		const result = await Users.insertOne(user);
+		userMap.delete(req.query.p.toString());
+		if (result.result.ok) {
+			res.cookie('lp', result.insertedId.toString(), {
+				secure: true,
+				httpOnly: true,
+				sameSite: 'strict'
+			}).redirect('/');
+		} else {
+			res.status(500).send('<h1>Internal error</h1>');
+		}
 	});
-	
-	app.get('/', async (req, res) => {
-		console.time('Cookie decryption');
 
+	app.use(async (req, res, next) => {
 		if (!req.cookies.lp) {
-			console.log('Missing cookies !');
 			res.status(401).send();
 			return;
 		}
 
-		const buff = Buffer.from(req.cookies.lp, 'base64');
-		const nonce = buff.slice(0, nonceLength);
-		const data = buff.slice(nonceLength);
-		const payload = JSON.parse((await sodium.crypto_secretbox_open(data, nonce, key)).toString('utf8'));
-
-		console.log(`Decoded payload ${JSON.stringify(payload)}`);
-		console.timeEnd('Cookie decryption');
-
-		res.send('OK');
+		const id = new ObjectId(req.cookies.lp);
+		const user: User = await Users.findOne(id);
+		if (user) {
+			req.user = user;
+			next();
+		} else {
+			res.status(401).send();
+		}
 	});
 	
-	function buildLoginUrl(userId: string) {
+	app.get('/', async (req, res) => {
+		res.sendFile(join(__dirname, '../../../static/index.html'));
+	});
+
+	app.post('/upload', upload.single('sound'), async (req, res) => {
+		await Files.insertOne({ filename: req.file.filename, uid: req.user!.uid, name: req.body.name });
+		res.send('DONE !');
+	});
+
+	app.get('/list', async (req, res) => {
+		const files = await Files.aggregate([
+			{
+				'$match': {
+					'uid': '220843231607390208'
+				}
+			}, {
+				'$project': {
+					'name': true
+				}
+			}
+		]);
+		const array = await files.toArray();
+		console.log(array);
+		res.json(array);
+	});
+	
+	function buildLoginUrl(user: User) {
 		const id = uuid();
-		Users.set(id, userId);
+		userMap.set(id, user);
 		return `http://127.0.0.1:3000/login?p=${id}`;
 	}
 
@@ -71,7 +117,7 @@ SodiumPlus.auto().then(async sodium => {
 						cnt: message.cnt,
 						message: {
 							cmd: Commands.ProducedUrl,
-							url: buildLoginUrl(message.message.uid)
+							url: buildLoginUrl(message.message.user)
 						}
 					});
 					break;
@@ -80,3 +126,11 @@ SodiumPlus.auto().then(async sodium => {
 		console.log('Server UP !');
 	});
 });
+
+declare global {
+	namespace Express {
+		interface Request {
+			user?: User
+		}
+	}
+}

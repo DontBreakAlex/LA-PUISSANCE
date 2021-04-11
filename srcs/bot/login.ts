@@ -5,7 +5,13 @@ import qrCode from 'qrcode';
 
 export default class Login extends Command {
 	async execute(message: Message, array: string[]): Promise<void> {
-		const url = await Server.CreateLoginUrl(message.author.id);
+		if (!message.guild) {
+			return; // TODO: Think about here
+		}
+		const url = await Server.CreateLoginUrl({
+			uid: message.author.id,
+			guid: message.guild.id
+		});
 		const qr = await qrCode.toBuffer(url);
 		const embed = new MessageEmbed({
 			files: [{ attachment: qr, name: 'qr.png' }],

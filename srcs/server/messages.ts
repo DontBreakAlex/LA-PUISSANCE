@@ -2,7 +2,10 @@ export type Messages = ProduceUrl
 
 export type ProduceUrl = {
 	cmd: Commands.ProduceUrl,
-	uid: string
+	user: {
+		uid: string
+		guid: string
+	}
 }
 
 export type ProducedUrl = {
