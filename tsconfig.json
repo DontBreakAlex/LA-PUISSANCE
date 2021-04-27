@@ -60,5 +60,6 @@
 	},
 	"include": [
 		"srcs/**/*"
-	]
+	],
+	"exclude": [ "srcs/front"]
 }

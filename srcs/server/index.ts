@@ -41,7 +41,7 @@ client.connect().then(async () => {
 
 	app.use(cookieParser());
 	app.use(bodyParser.urlencoded({ extended: false }));
-	
+
 	app.get('/login', async (req, res) => {
 		if (!req.query.p) {
 			res.status(400).send('<h1>401 Unauthorized</h1>');
@@ -63,7 +63,7 @@ client.connect().then(async () => {
 
 	app.use(async (req, res, next) => {
 		if (!req.cookies.lp) {
-			res.status(401).send();
+			res.status(401).send('<h1>401 Unauthorized</h1>');
 			return;
 		}
 
@@ -73,13 +73,11 @@ client.connect().then(async () => {
 			req.user = user;
 			next();
 		} else {
-			res.status(401).send();
+			res.status(401).send('<h1>401 Unauthorized</h1>');
 		}
 	});
-	
-	app.get('/', async (req, res) => {
-		res.sendFile(join(__dirname, '../../../static/index.html'));
-	});
+
+	app.use(express.static(join(__dirname, '../../../static')))
 
 	app.post('/upload', upload.single('sound'), async (req, res) => {
 		await Files.insertOne({ filename: req.file.filename, uid: req.user!.uid, name: req.body.name });
@@ -102,7 +100,7 @@ client.connect().then(async () => {
 		console.log(array);
 		res.json(array);
 	});
-	
+
 	function buildLoginUrl(user: User) {
 		const id = uuid();
 		userMap.set(id, user);
