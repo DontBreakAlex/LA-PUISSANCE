@@ -9,27 +9,6 @@ import css from 'rollup-plugin-css-only';
 
 const production = !process.env.ROLLUP_WATCH;
 
-function serve() {
-	let server;
-
-	function toExit() {
-		if (server) server.kill(0);
-	}
-
-	return {
-		writeBundle() {
-			if (server) return;
-			server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-				stdio: ['ignore', 'inherit', 'inherit'],
-				shell: true
-			});
-
-			process.on('SIGTERM', toExit);
-			process.on('exit', toExit);
-		}
-	};
-}
-
 export default {
 	input: 'srcs/front/main.ts',
 	output: {
@@ -46,9 +25,9 @@ export default {
 				dev: !production
 			}
 		}),
+		css({ output: 'bundle.css', exclude: ['**/tailwind.css'] }),
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
-		css({ output: 'bundle.css' }),
 
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
@@ -57,28 +36,28 @@ export default {
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
 		resolve({
 			browser: true,
-			dedupe: ['svelte']
+			dedupe: ['svelte', 'svelte/transition', 'svelte/internal']
 		}),
 		commonjs(),
 		typescript({
 			sourceMap: !production,
 			inlineSources: !production,
-			tsconfig: "srcs/front/tsconfig.json"
+			tsconfig: 'srcs/front/tsconfig.json'
 		}),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
-		!production && serve(),
+		// !production && serve(),
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
-		!production && livereload('public'),
+		!production && livereload('static'),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
 		production && terser()
 	],
 	watch: {
-		clearScreen: false
+		clearScreen: true
 	}
 };

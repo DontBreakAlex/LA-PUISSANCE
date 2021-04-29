@@ -1010,7 +1010,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^3.5.0":
+"chokidar@npm:^3.4.1, chokidar@npm:^3.5.0":
   version: 3.5.1
   resolution: "chokidar@npm:3.5.1"
   dependencies:
@@ -2435,6 +2435,8 @@ fsevents@~2.3.1:
     sodium-native: ^3.2.1
     sodium-plus: ^0.9.0
     svelte: ^3.37.0
+    svelte-accessible-dialog: ^2.1.3
+    svelte-check: ^1.5.2
     svelte-preprocess: ^4.7.2
     tslib: ^2.2.0
     typescript: ^4.2.3
@@ -3971,7 +3973,7 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"source-map@npm:~0.7.2":
+"source-map@npm:^0.7.3, source-map@npm:~0.7.2":
   version: 0.7.3
   resolution: "source-map@npm:0.7.3"
   checksum: 351ce26ffa1ebf203660c0d70d7566c81e65d2d994d1c2d94da140808e02da34961673ce12ecea9b40797b96fbeb8c70bf71a4ad9f779f1a4fdbba75530bb386
@@ -4160,7 +4162,34 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"svelte-preprocess@npm:^4.7.2":
+"svelte-accessible-dialog@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "svelte-accessible-dialog@npm:2.1.3"
+  checksum: a6574352ad8e2d0323c8bdb5a8dc6f0eec85a4fc95d078ff177e67562bd08213845420dbfb5c0830583690367d3259f2eac7a69e7ea7c6880217bc5ad1c667b4
+  languageName: node
+  linkType: hard
+
+"svelte-check@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "svelte-check@npm:1.5.2"
+  dependencies:
+    chalk: ^4.0.0
+    chokidar: ^3.4.1
+    glob: ^7.1.6
+    import-fresh: ^3.2.1
+    minimist: ^1.2.5
+    source-map: ^0.7.3
+    svelte-preprocess: ^4.0.0
+    typescript: "*"
+  peerDependencies:
+    svelte: ^3.24.0
+  bin:
+    svelte-check: bin/svelte-check
+  checksum: d6beaf5887a4654dd37b43998c331acca99f757ee4f160b6707a0d6968fee255055c03ab6dd77c3d279a18574c6dd9b4f5ada650f011935eacf5bee0a1c0f3d2
+  languageName: node
+  linkType: hard
+
+"svelte-preprocess@npm:^4.0.0, svelte-preprocess@npm:^4.7.2":
   version: 4.7.2
   resolution: "svelte-preprocess@npm:4.7.2"
   dependencies:
@@ -4418,7 +4447,7 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-typescript@^4.2.3:
+"typescript@*, typescript@^4.2.3":
   version: 4.2.4
   resolution: "typescript@npm:4.2.4"
   bin:
@@ -4428,7 +4457,7 @@ typescript@^4.2.3:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.2.3#builtin<compat/typescript>":
+"typescript@patch:typescript@*#builtin<compat/typescript>, typescript@patch:typescript@^4.2.3#builtin<compat/typescript>":
   version: 4.2.4
   resolution: "typescript@patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"
   bin:

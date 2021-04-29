@@ -52,7 +52,7 @@ client.connect().then(async () => {
 		userMap.delete(req.query.p.toString());
 		if (result.result.ok) {
 			res.cookie('lp', result.insertedId.toString(), {
-				secure: true,
+				// secure: true,
 				httpOnly: true,
 				sameSite: 'strict'
 			}).redirect('/');
@@ -77,7 +77,7 @@ client.connect().then(async () => {
 		}
 	});
 
-	app.use(express.static(join(__dirname, '../../../static')))
+	app.use(express.static(join(__dirname, '../../../static')));
 
 	app.post('/upload', upload.single('sound'), async (req, res) => {
 		await Files.insertOne({ filename: req.file.filename, uid: req.user!.uid, name: req.body.name });
@@ -85,10 +85,10 @@ client.connect().then(async () => {
 	});
 
 	app.get('/list', async (req, res) => {
-		const files = await Files.aggregate([
+		/*const files = await Files.aggregate([
 			{
 				'$match': {
-					'uid': '220843231607390208'
+					'uid': req.user!.uid
 				}
 			}, {
 				'$project': {
@@ -96,8 +96,18 @@ client.connect().then(async () => {
 				}
 			}
 		]);
-		const array = await files.toArray();
-		console.log(array);
+		const array = await files.toArray();*/
+		const array = [
+			{
+				name: 'First file'
+			},
+			{
+				name: 'Second file'
+			},
+			{
+				name: 'Third file with very long title'
+			}
+		];
 		res.json(array);
 	});
 
