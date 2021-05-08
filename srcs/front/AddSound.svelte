@@ -61,7 +61,7 @@
             <div class="spacer"></div>
             <div class="lastRow">
                 <button on:click={close}>Cancel</button>
-                <input type="submit" value="Send">
+                <input type="submit" value="Upload">
             </div>
         </form>
     </DialogContent>
@@ -156,5 +156,19 @@
     .spacer {
         min-height: 7.5vh;
         flex-grow: 1;
+    }
+
+	button, input[type=submit] {
+		background-color: #cccccc;
+		border-radius: 1.5em;
+        padding: 0.5em 1em;
+		text-align: center;
+		outline: none;
+		color: black;
+		border: none;
+        font-family: IBMPlexSans, Arial, sans-serif;
+		display: block;
+		height: 150%;
+		width: 20%;
     }
 </style>

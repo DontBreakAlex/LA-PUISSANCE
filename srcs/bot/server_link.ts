@@ -1,6 +1,10 @@
 import { fork } from 'child_process';
 import { join } from 'path';
-import { BotReceived, Commands, Messages, ProducedUrl } from '../server/messages';
+import { BotReceived, Commands, Messages, PlaySound, ProducedUrl } from '../server/messages';
+import { bot, guilds } from '.';
+import { Playing } from './guild_map';
+import { bindToDispatcher } from './utils';
+import { fileStoragePath } from '../../config.json';
 
 export default new class Server {
 	private child
@@ -20,8 +24,37 @@ export default new class Server {
 	}
 
 	private onMessage(message: BotReceived) {
-		this.map.get(message.cnt)?.(message.message);
-		this.map.delete(message.cnt);
+		switch (message.message.cmd) {
+			case Commands.ProducedUrl:
+				this.map.get(message.cnt!)?.(message.message);
+				this.map.delete(message.cnt!);
+				break;
+			case Commands.PlaySound:
+				this.PlaySound(message.message);
+				break;
+		}
+	}
+
+	private async PlaySound(message: PlaySound) {
+		const guild = await bot.guilds.fetch(message.user.guid);
+		if (!guild) 
+			return;
+		const status = guilds.findOrCreate(message.user.guid);
+		const member = guild.member(message.user.uid);
+		if (!member || !member.voice.channel)
+			return;
+		if (status.playing != Playing.None) 
+			return;
+		status.playing = Playing.Generic;
+		const vChannel = member.voice.channel;
+		const connection = await vChannel.join();
+		const dispatcher = connection.play(join(fileStoragePath, message.filename));
+		bindToDispatcher(dispatcher, () => {
+			vChannel.leave();
+			status.playing = Playing.None;
+		});
+		status.dispatcher = dispatcher;
+		status.voice = connection;
 	}
 
 	private sendMessage(message: Messages, cnt?: number) {

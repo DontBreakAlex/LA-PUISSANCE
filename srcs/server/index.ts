@@ -2,20 +2,21 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { v4 as uuid } from 'uuid';
 import bodyParser from 'body-parser';
-import { Commands, ServerReceived } from './messages';
-import { MongoClient, ObjectId } from 'mongodb';
-import { mongoUri, mongoDatabase, fileStoragePath } from '../../config.json';
+import { BotReceived, Commands, ServerReceived } from './messages';
+import { Collection, MongoClient, ObjectId } from 'mongodb';
+import { fileStoragePath, mongoDatabase, mongoUri } from '../../config.json';
 import multer from 'multer';
 import { mkdirSync } from 'fs';
 import { join, parse } from 'path';
+import type { File, User } from './serverTypes';
 
 try {
-	mkdirSync(fileStoragePath);
+	mkdirSync(fileStoragePath, { recursive: true });
 } catch {}
 const app = express();
 const client = new MongoClient(mongoUri, { useUnifiedTopology: true });
 // This map holds the user that are waiting to log in
-const userMap = new Map<string, { uid: string; guid: string }>();
+const userMap = new Map<string, User>();
 const storage = multer.diskStorage({
 	destination: (req, file, callback) => callback(null, fileStoragePath),
 	filename: (req, file, callback) => {
@@ -30,14 +31,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 1024 * 1024 } });
 
-type User = { uid: string; guid: string }
-
 client.connect().then(async () => {
 	console.log('Connected to database !');
 
 	const db = client.db(mongoDatabase);
-	const Users = db.collection('Users');
-	const Files = db.collection('Files');
+	const Users: Collection<User> = db.collection('Users');
+	const Files: Collection<File> = db.collection('Files');
 
 	app.use(cookieParser());
 	app.use(bodyParser.urlencoded({ extended: false }));
@@ -48,6 +47,10 @@ client.connect().then(async () => {
 			return;
 		}
 		const user = userMap.get(req.query.p.toString());
+		if (!user) {
+			res.status(500).send('<h1>Internal error</h1>');
+			return;
+		}
 		const result = await Users.insertOne(user);
 		userMap.delete(req.query.p.toString());
 		if (result.result.ok) {
@@ -68,7 +71,7 @@ client.connect().then(async () => {
 		}
 
 		const id = new ObjectId(req.cookies.lp);
-		const user: User = await Users.findOne(id);
+		const user = await Users.findOne(id);
 		if (user) {
 			req.user = user;
 			next();
@@ -100,6 +103,24 @@ client.connect().then(async () => {
 		res.json(array);
 	});
 
+	app.post('/play', async (req, res) => {
+		const id = req.query.p;
+		if (typeof id != 'string') {
+			res.status(400).send();
+			return;
+		}
+		const file = await Files.findOne(new ObjectId(id));
+		if (file) {
+			sendMessage({ message: {
+				cmd: Commands.PlaySound,
+				filename: file.filename,
+				user: req.user!
+			} });
+			res.status(200).send();
+		}
+		res.status(404).send();
+	});
+
 	function buildLoginUrl(user: User) {
 		const id = uuid();
 		userMap.set(id, user);
@@ -110,7 +131,7 @@ client.connect().then(async () => {
 		process.on('message', (message: ServerReceived) => {
 			switch (message.message.cmd) {
 				case Commands.ProduceUrl:
-					process.send!({
+					sendMessage({
 						cnt: message.cnt,
 						message: {
 							cmd: Commands.ProducedUrl,
@@ -123,6 +144,10 @@ client.connect().then(async () => {
 		console.log('Server UP !');
 	});
 });
+
+function sendMessage(message: BotReceived) {
+	process.send!(message);
+}
 
 declare global {
 	namespace Express {

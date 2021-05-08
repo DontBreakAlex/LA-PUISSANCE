@@ -2,9 +2,12 @@
 	import SoundCell from './SoundCell.svelte';
 	import AddSound from './AddSound.svelte';
 
+	export type Sound = {
+		name: string
+		_id: string
+	}
 
-
-	let sounds: Promise<any> = (async () => {
+	let sounds: Promise<Sound[]> = (async () => {
 		const resp = await fetch('list');
 		return await resp.json();
 	})();

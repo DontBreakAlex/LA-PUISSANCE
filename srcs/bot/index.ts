@@ -4,9 +4,9 @@ import Commands from './commands';
 import { GuildMap } from './guild_map';
 import Help from './help';
 
-const bot = new Client();
+export const bot = new Client();
 
-var guilds = new GuildMap();
+export var guilds = new GuildMap();
 
 
 console.log(process.version);
@@ -17,8 +17,7 @@ bot.on('ready', () => {
 });
 
 bot.on('message', (message: Message) => {
-	if (message.content.startsWith(botPrefix))
-	{
+	if (message.content.startsWith(botPrefix)) {
 		const array = message.cleanContent.split(' ');
 		if (array.length == 1) 
 			return;

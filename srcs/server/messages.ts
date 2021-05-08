@@ -1,11 +1,10 @@
+import type { User } from './serverTypes';
+
 export type Messages = ProduceUrl
 
 export type ProduceUrl = {
 	cmd: Commands.ProduceUrl,
-	user: {
-		uid: string
-		guid: string
-	}
+	user: User
 }
 
 export type ProducedUrl = {
@@ -13,9 +12,16 @@ export type ProducedUrl = {
 	url: string
 }
 
+export type PlaySound = {
+	cmd: Commands.PlaySound,
+	user: User,
+	filename: string
+}
+
 export enum Commands {
 	ProduceUrl,
-	ProducedUrl
+	ProducedUrl,
+	PlaySound
 }
 
 export type ServerReceived =
@@ -25,6 +31,6 @@ export type ServerReceived =
 	}
 
 export type BotReceived = {
-	message: ProducedUrl,
-	cnt: number
+	message: ProducedUrl | PlaySound
+	cnt?: number
 }

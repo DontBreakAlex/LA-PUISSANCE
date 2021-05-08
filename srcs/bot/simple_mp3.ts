@@ -1,16 +1,7 @@
 import Command from './command';
 import { Message, MessageEmbed, StreamDispatcher, VoiceChannel } from 'discord.js';
 import { Playing } from './guild_map';
-
-/** WARNING:
- * 		This file suffers from code duplication
- */
-
-function bindEvent(dispatcher: StreamDispatcher, cb: () => void) {
-	dispatcher.on('error', err => console.error(err));
-	dispatcher.on('warn', err => console.warn(err));
-	dispatcher.on('finish', cb);
-}
+import { bindToDispatcher } from './utils';
 
 class Urss extends Command {
 	test(command: string): boolean {
@@ -28,7 +19,7 @@ class Urss extends Command {
 			else {
 				const connection = await vChannel.join();
 				const dispatcher = connection.play('./ressources/urss.webm');
-				bindEvent(dispatcher, () => {
+				bindToDispatcher(dispatcher, () => {
 					(<VoiceChannel>vChannel).leave();
 					status.playing = Playing.None;
 				});
@@ -36,7 +27,7 @@ class Urss extends Command {
 				status.dispatcher = dispatcher;
 			}
 		} else if (status.playing == Playing.Urss) {
-			(<StreamDispatcher>status.dispatcher).end(); // If playing is at Urss, dispatcher can't be null
+			status.dispatcher!.end(); // If playing is at Urss, dispatcher can't be null
 			message.channel.send(new MessageEmbed({
 				author: { name: 'Staline', icon_url: 'http://ekouter.net/img/img/Staline.jpg' },
 				description: 'Quoi ?! Vous n\'écoutez pas l\'hymne soviétique jusqu\'au bout ? J\'envoie les KV-1 de l\'armée rouge !'
@@ -85,8 +76,8 @@ class Rick extends Command {
 				else {
 					const connection = await vChannel.join();
 					const dispatcher = connection.play('./ressources/rickroll.webm');
-					bindEvent(dispatcher, () => {
-						(<VoiceChannel>vChannel).leave();
+					bindToDispatcher(dispatcher, () => {
+						vChannel!.leave();
 						status.playing = Playing.None;
 					});
 					status.playing = Playing.Rick;
@@ -94,7 +85,7 @@ class Rick extends Command {
 				}
 			}
 		} else if (status.playing == Playing.Rick)
-			(<StreamDispatcher>status.dispatcher).end();
+			status.dispatcher!.end();
 		else
 			message.channel.send('Je suis déjà en train de lire quelque chose !');
 	}
@@ -141,7 +132,7 @@ class Goodenough extends Command {
 			else {
 				const connection = await vChannel.join();
 				const dispatcher = connection.play('./ressources/goodenough.webm');
-				bindEvent(dispatcher, () => {
+				bindToDispatcher(dispatcher, () => {
 					(<VoiceChannel>vChannel).leave();
 					status.playing = Playing.None;
 				});
