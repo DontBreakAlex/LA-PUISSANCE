@@ -81,33 +81,22 @@ client.connect().then(async () => {
 
 	app.post('/upload', upload.single('sound'), async (req, res) => {
 		await Files.insertOne({ filename: req.file.filename, uid: req.user!.uid, name: req.body.name });
-		res.send('DONE !');
+		res.send('OK');
 	});
 
 	app.get('/list', async (req, res) => {
-		/*const files = await Files.aggregate([
+		const files = await Files.aggregate([
 			{
-				'$match': {
-					'uid': req.user!.uid
+				$match: {
+					uid: req.user!.uid
 				}
 			}, {
-				'$project': {
-					'name': true
+				$project: {
+					name: true
 				}
 			}
 		]);
-		const array = await files.toArray();*/
-		const array = [
-			{
-				name: 'First file'
-			},
-			{
-				name: 'Second file'
-			},
-			{
-				name: 'Third file with very long title'
-			}
-		];
+		const array = await files.toArray();
 		res.json(array);
 	});
 

@@ -2,22 +2,29 @@
 	import SoundCell from './SoundCell.svelte';
 	import AddSound from './AddSound.svelte';
 
-	export let sounds = async () => {
-		const resp = await fetch('/list');
+
+
+	let sounds: Promise<any> = (async () => {
+		const resp = await fetch('list');
 		return await resp.json();
-	};
+	})();
+
+	async function updateSounds() {
+		const resp = await fetch('list');
+		sounds = await resp.json();
+	}
 </script>
 
 <main>
-    <h1>La Puissance !</h1>
+    <h1>La Puissance</h1>
     <div class="grid">
-        {#await sounds()}
+        {#await sounds}
             <p>Loading...</p>
         {:then sounds}
             {#each sounds as sound}
                 <SoundCell {...sound}/>
             {/each}
-            <AddSound/>
+            <AddSound on:upload-success={updateSounds}/>
         {:catch error}
             <p>Error: {error}</p>
         {/await}
@@ -34,12 +41,13 @@
     }
 
     h1 {
-        color: #ff3e00;
+        color: #ffffff;
         text-transform: uppercase;
-        font-size: 3em;
-        font-weight: 100;
+        font-size: clamp(1em, 20vw, 15vh);
         margin: 0;
-        padding: 1em;
+        padding-bottom: 1rem;
+        padding-top: 1rem;
+		font-family: 'League Gothic Italic', Arial, sans-serif
     }
 
     .grid {
