@@ -60,17 +60,17 @@
         <h2>Add a sound</h2>
         <form action="upload" method="post" enctype="multipart/form-data" on:submit={handleSubmit}>
             <label>
-                Sound name: <input type="text" name="name" class="custom-input" required/>
+				<span>Sound name:</span><input type="text" name="name" class="custom-input" required/>
             </label>
             <label>
                 Sound file:
                 <input type="file" name="sound" accept="audio/mpeg" on:change="{handleSoundChange}" required/>
-                <p class="custom-input">{selectedSound}</p>
+                <span class="custom-input">{selectedSound}</span>
             </label>
 			<label>
 				Thumbnail:
 				<input type="file" name="image" accept="image/*" on:change="{handleImageChange}"/>
-				<p class="custom-input">{selectedImage}</p>
+				<span class="custom-input">{selectedImage}</span>
 			</label>
 			<div class="spacer"></div>
 			<div class="lastRow">
@@ -87,6 +87,14 @@
         width: max(60%, 150px);
         height: auto;
     }
+
+	@media (max-width: 500px) {
+        :global([data-svelte-dialog-content].content) {
+			margin: 15vh 3vh auto;
+			width: auto;
+			padding: 3vh;
+        }
+	}
 
     :global([data-svelte-dialog-content].content) {
         background: hsl(220, 8%, 30%);
@@ -111,18 +119,18 @@
         margin-bottom: 0.3em;
         display: flex;
         flex-direction: row;
-        flex-wrap: wrap;
         gap: 1em;
         justify-content: center;
         align-items: center;
         color: white;
+		white-space: nowrap;
     }
 
-    input, input + p {
+    input, input + span {
         flex-grow: 1;
     }
 
-    input + p {
+    input + span {
         display: flex;
         justify-content: center;
         cursor: pointer;
@@ -130,7 +138,7 @@
 		margin: 0;
     }
 
-    input[type=file]:focus + p {
+    input[type=file]:focus + span {
         outline: auto;
     }
 
@@ -144,6 +152,7 @@
         color: white;
         padding-left: 0.3em;
         padding-right: 0.3em;
+		min-width: 5em;
     }
 
     .custom-input:hover {
@@ -184,7 +193,7 @@
         font-family: IBMPlexSans, Arial, sans-serif;
 		display: block;
 		height: 150%;
-		width: 20%;
+		width: max(20%, 5em);
         transition: background-color .17s ease;
     }
 
@@ -195,4 +204,8 @@
     button:focus, input[type=submit]:focus {
         background-color: white;
     }
+
+	label > span {
+		margin: 0;
+	}
 </style>
