@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import bodyParser from 'body-parser';
 import { BotReceived, Commands, ServerReceived } from './messages';
 import { Collection, MongoClient, ObjectId } from 'mongodb';
-import { fileStoragePath, mongoDatabase, mongoUri } from '../../config.json';
+import { fileStoragePath, mongoDatabase, mongoUri, protocol, host } from '../../config.json';
 import multer from 'multer';
 import { mkdirSync } from 'fs';
 import { join } from 'path';
@@ -27,8 +27,6 @@ client.connect().then(async () => {
 	const db = client.db(mongoDatabase);
 	const Users: Collection<User & {_id: ObjectId}> = db.collection('Users');
 	const Files: Collection<File> = db.collection('Files');
-	if (!await Users.indexExists('uid_1'))
-		await Users.createIndex({ uid: 1, guid: 1 }, { unique: true });
 
 	app.use(cookieParser());
 	app.use(bodyParser.urlencoded({ extended: false }));
@@ -47,7 +45,7 @@ client.connect().then(async () => {
 		userMap.delete(req.query.p.toString());
 		if (result.ok) {
 			res.cookie('lp', result.value!._id.toString(), {
-				// secure: true,
+				secure: protocol == 'https',
 				httpOnly: true,
 				sameSite: 'strict'
 			}).redirect('/');
@@ -149,7 +147,7 @@ client.connect().then(async () => {
 	function buildLoginUrl(user: User) {
 		const id = uuid();
 		userMap.set(id, user);
-		return `http://127.0.0.1:3000/login?p=${id}`;
+		return `${protocol}://${host}/login?p=${id}`;
 	}
 
 	app.listen(3000, () => {
