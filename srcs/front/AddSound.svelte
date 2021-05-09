@@ -6,7 +6,8 @@
 	const dispatch = createEventDispatcher();
 	const defaultText = 'Select file';
 	let isOpen: boolean;
-	let selectedFile: string = defaultText;
+	let selectedSound: string = defaultText;
+	let selectedImage: string = defaultText;
 
 	const open = () => {
 		isOpen = true;
@@ -29,15 +30,23 @@
 				console.error(`Upload failed: ${resp.statusText}`);
 			}
 		});
-		selectedFile = defaultText;
+		selectedSound = defaultText;
+		selectedImage = defaultText;
 		close();
 	}
 
-	function handleFileChange(e: any) {
+	function handleSoundChange(e: any) {
 		try {
-			selectedFile = e.target.files[0].name;
+			selectedSound = e.target.files[0].name;
 		} catch {
-			selectedFile = defaultText;
+			selectedSound = defaultText;
+		}
+	}
+	function handleImageChange(e: any) {
+		try {
+			selectedImage= e.target.files[0].name;
+		} catch {
+			selectedImage = defaultText;
 		}
 	}
 </script>
@@ -49,17 +58,22 @@
 <DialogOverlay {isOpen} onDismiss={close} class="overlay">
     <DialogContent aria-label="File uploader" class="content">
         <h2>Add a sound</h2>
-        <form action="/upload" method="post" enctype="multipart/form-data" on:submit={handleSubmit}>
+        <form action="upload" method="post" enctype="multipart/form-data" on:submit={handleSubmit}>
             <label>
                 Sound name: <input type="text" name="name" class="custom-input" required/>
             </label>
             <label>
                 Sound file:
-                <input type="file" name="sound" accept="audio/mpeg" on:change="{handleFileChange}" required/>
-                <p class="custom-input">{selectedFile}</p>
+                <input type="file" name="sound" accept="audio/mpeg" on:change="{handleSoundChange}" required/>
+                <p class="custom-input">{selectedSound}</p>
             </label>
-            <div class="spacer"></div>
-            <div class="lastRow">
+			<label>
+				Thumbnail:
+				<input type="file" name="image" accept="image/*" on:change="{handleImageChange}"/>
+				<p class="custom-input">{selectedImage}</p>
+			</label>
+			<div class="spacer"></div>
+			<div class="lastRow">
                 <button on:click={close}>Cancel</button>
                 <input type="submit" value="Upload">
             </div>
@@ -110,9 +124,10 @@
 
     input + p {
         display: flex;
-        justify-content: end;
+        justify-content: center;
         cursor: pointer;
         overflow: hidden;
+		margin: 0;
     }
 
     input[type=file]:focus + p {
@@ -170,5 +185,14 @@
 		display: block;
 		height: 150%;
 		width: 20%;
+        transition: background-color .17s ease;
+    }
+
+    button:hover, input[type=submit]:hover {
+		background-color: white;
+    }
+
+    button:focus, input[type=submit]:focus {
+        background-color: white;
     }
 </style>

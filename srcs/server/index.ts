@@ -7,8 +7,9 @@ import { Collection, MongoClient, ObjectId } from 'mongodb';
 import { fileStoragePath, mongoDatabase, mongoUri } from '../../config.json';
 import multer from 'multer';
 import { mkdirSync } from 'fs';
-import { join, parse } from 'path';
+import { join } from 'path';
 import type { File, User } from './serverTypes';
+import customStorage from './storage';
 
 try {
 	mkdirSync(fileStoragePath, { recursive: true });
@@ -17,26 +18,17 @@ const app = express();
 const client = new MongoClient(mongoUri, { useUnifiedTopology: true });
 // This map holds the user that are waiting to log in
 const userMap = new Map<string, User>();
-const storage = multer.diskStorage({
-	destination: (req, file, callback) => callback(null, fileStoragePath),
-	filename: (req, file, callback) => {
-		if (file.mimetype !== 'audio/mpeg')
-			callback(new Error('Wrong file type'), '');
-		else {
-			const parsed = parse(file.originalname);
-			const filename = `${parsed.name}-${req.user!.uid}${parsed.ext}`;
-			callback(null, filename);
-		}
-	}
-});
-const upload = multer({ storage, limits: { fileSize: 1024 * 1024 } });
+const storage = customStorage();
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 client.connect().then(async () => {
 	console.log('Connected to database !');
 
 	const db = client.db(mongoDatabase);
-	const Users: Collection<User> = db.collection('Users');
+	const Users: Collection<User & {_id: ObjectId}> = db.collection('Users');
 	const Files: Collection<File> = db.collection('Files');
+	if (!await Users.indexExists('uid_1'))
+		await Users.createIndex({ uid: 1, guid: 1 }, { unique: true });
 
 	app.use(cookieParser());
 	app.use(bodyParser.urlencoded({ extended: false }));
@@ -51,10 +43,10 @@ client.connect().then(async () => {
 			res.status(500).send('<h1>Internal error</h1>');
 			return;
 		}
-		const result = await Users.insertOne(user);
+		const result = await Users.findOneAndUpdate(user, { $setOnInsert: user }, { upsert: true, returnOriginal: false });
 		userMap.delete(req.query.p.toString());
-		if (result.result.ok) {
-			res.cookie('lp', result.insertedId.toString(), {
+		if (result.ok) {
+			res.cookie('lp', result.value!._id.toString(), {
 				// secure: true,
 				httpOnly: true,
 				sameSite: 'strict'
@@ -82,9 +74,27 @@ client.connect().then(async () => {
 
 	app.use(express.static(join(__dirname, '../../../static')));
 
-	app.post('/upload', upload.single('sound'), async (req, res) => {
-		await Files.insertOne({ filename: req.file.filename, uid: req.user!.uid, name: req.body.name });
-		res.send('OK');
+	app.post('/upload', upload.fields([
+		{ name: 'sound', maxCount: 1 },
+		{ name: 'image', maxCount: 1 }
+	]), async (req, res) => {
+		if (Array.isArray(req.files)) {
+			res.status(400).send();
+			return;
+		}
+		const sound = req.files.sound?.[0]?.filename;
+		const image = req.files.image?.[0]?.filename;
+		if (!sound || !req.body.name) {
+			res.status(400).send();
+			return;
+		}
+		await Files.insertOne({
+			filename: sound,
+			image,
+			uid: req.user!.uid,
+			name: req.body.name
+		}, { });
+		res.send();
 	});
 
 	app.get('/list', async (req, res) => {
@@ -95,12 +105,27 @@ client.connect().then(async () => {
 				}
 			}, {
 				$project: {
-					name: true
+					name: true,
+					image: true
 				}
 			}
 		]);
 		const array = await files.toArray();
 		res.json(array);
+	});
+
+	app.get('/images/:image', async (req, res) => {
+		const image = req.params.image;
+		if (!image) {
+			res.status(400).send();
+			return;
+		}
+		const imageInDb = await Files.findOne({ image }, { projection: { uid: 1 } });
+		if (imageInDb && imageInDb.uid == req.user!.uid) {
+			res.set('Cache-Control', 'private, max-age=31536000, immutable').sendFile(join(fileStoragePath, image));
+		} else {
+			res.status(404).send();
+		}
 	});
 
 	app.post('/play', async (req, res) => {

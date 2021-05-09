@@ -5,6 +5,7 @@ export type User = {
 
 export type File = {
 	filename: string
+	image?: string
 	uid: string
 	name: string
 }
