@@ -4,7 +4,6 @@ import { BotReceived, Commands, Messages, PlaySound, ProducedUrl } from '../serv
 import { bot, guilds } from '.';
 import { Playing } from './guild_map';
 import { bindToDispatcher } from './utils';
-import { fileStoragePath } from '../../config.json';
 
 export default new class Server {
 	private child
@@ -48,7 +47,7 @@ export default new class Server {
 		status.playing = Playing.Generic;
 		const vChannel = member.voice.channel;
 		const connection = await vChannel.join();
-		const dispatcher = connection.play(join(fileStoragePath, message.filename));
+		const dispatcher = connection.play(message.url);
 		bindToDispatcher(dispatcher, () => {
 			vChannel.leave();
 			status.playing = Playing.None;

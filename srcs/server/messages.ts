@@ -15,7 +15,7 @@ export type ProducedUrl = {
 export type PlaySound = {
 	cmd: Commands.PlaySound,
 	user: User,
-	filename: string
+	url: string
 }
 
 export enum Commands {

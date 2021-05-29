@@ -1,16 +1,16 @@
 import fs from 'fs';
 import { Request } from 'express';
 import { fileStoragePath } from '../../config.json';
-import * as path from 'path';
+import path from 'path';
 import HashTrough from 'hash-through';
 import crypto from 'crypto';
 import { v4 as uuid } from 'uuid';
 import sharp from 'sharp';
+import type { Cb, Storage } from './storageTypes';
 
-type Cb = { (arg0: null, arg1: { filename: string; size: number; }): void; (err: Error): void; };
 
-class CustomStorage {
-	public _handleFile (req: Request, file: Express.Multer.File, cb: Cb) {
+export class CustomStorage implements Storage {
+	public _handleFile (req: Request, file: Express.Multer.File, cb: Cb): void {
 		const ht = HashTrough(() => crypto.createHash('md5'));
 		const destination = path.join(fileStoragePath, uuid());
 		const outStream = fs.createWriteStream(destination);
@@ -44,6 +44,7 @@ class CustomStorage {
 		let firstCall = true;
 		const callback = () => {
 			if (firstCall) {
+				// We wait for both ht and outStream to finish
 				firstCall = false;
 				return;
 			}
@@ -60,11 +61,17 @@ class CustomStorage {
 		ht.on('finish', callback);
 	}
 
-	public _removeFile (req: Request, file: Express.Multer.File, cb: fs.NoParamCallback) {
+	public _removeFile (req: Request, file: Express.Multer.File, cb: fs.NoParamCallback): void {
+		// Untested
+		console.warn('_removeFile called !');
 		fs.unlink(file.path, cb);
 	}
-}
 
-export default function (): CustomStorage {
-	return new CustomStorage();
+	public getFile(filename: string): string {
+		return path.join(fileStoragePath, filename);
+	}
+
+	public getFileStream(filename: string): fs.ReadStream {
+		return fs.createReadStream(path.join(fileStoragePath, filename));
+	}
 }

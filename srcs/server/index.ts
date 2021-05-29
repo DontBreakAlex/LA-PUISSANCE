@@ -4,12 +4,12 @@ import { v4 as uuid } from 'uuid';
 import bodyParser from 'body-parser';
 import { BotReceived, Commands, ServerReceived } from './messages';
 import { Collection, MongoClient, ObjectId } from 'mongodb';
-import { fileStoragePath, mongoDatabase, mongoUri, protocol, host } from '../../config.json';
+import { fileStorage, fileStoragePath, mongoDatabase, mongoUri, protocol, host } from '../../config.json';
 import multer from 'multer';
 import { mkdirSync } from 'fs';
 import { join } from 'path';
 import type { File, User } from './serverTypes';
-import customStorage from './storage';
+import type { Storage } from './storageTypes';
 
 try {
 	mkdirSync(fileStoragePath, { recursive: true });
@@ -18,11 +18,16 @@ const app = express();
 const client = new MongoClient(mongoUri, { useUnifiedTopology: true });
 // This map holds the user that are waiting to log in
 const userMap = new Map<string, User>();
-const storage = customStorage();
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
-
 client.connect().then(async () => {
 	console.log('Connected to database !');
+
+	let storage: Storage;
+	if (fileStorage == 's3') {
+		storage = new (await import('./s3storage')).S3Storage();
+	} else {
+		storage = new (await import('./filesystemStorage')).CustomStorage();
+	}
+	const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 	const db = client.db(mongoDatabase);
 	const Users: Collection<User & {_id: ObjectId}> = db.collection('Users');
@@ -120,7 +125,14 @@ client.connect().then(async () => {
 		}
 		const imageInDb = await Files.findOne({ image }, { projection: { uid: 1 } });
 		if (imageInDb && imageInDb.uid == req.user!.uid) {
-			res.set('Cache-Control', 'private, max-age=31536000, immutable').sendFile(join(fileStoragePath, image));
+			try {
+				const stream = await storage.getFileStream(image);
+				res.set('Cache-Control', 'private, max-age=31536000, immutable');
+				stream.pipe(res);
+			} catch (e) {
+				console.error(e.toString());
+				res.status(500).send();
+			}
 		} else {
 			res.status(404).send();
 		}
@@ -136,7 +148,7 @@ client.connect().then(async () => {
 		if (file) {
 			sendMessage({ message: {
 				cmd: Commands.PlaySound,
-				filename: file.filename,
+				url: await storage.getFile(file.filename),
 				user: req.user!
 			} });
 			res.status(200).send();
