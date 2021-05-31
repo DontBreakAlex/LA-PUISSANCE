@@ -82,9 +82,7 @@ export class S3Storage implements Storage {
 			Bucket,
 			Key: filename
 		});
-		const url = await getSignedUrl(client, command, { expiresIn });
-		console.log(url);
-		return url;
+		return await getSignedUrl(client, command, { expiresIn });
 	}
 
 	public async getFileStream(filename: string): Promise<Stream.Readable> {

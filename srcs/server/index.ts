@@ -46,7 +46,7 @@ client.connect().then(async () => {
 			res.status(500).send('<h1>Internal error</h1>');
 			return;
 		}
-		const result = await Users.findOneAndUpdate(user, { $setOnInsert: user }, { upsert: true, returnOriginal: false });
+		const result = await Users.findOneAndUpdate(user, { $setOnInsert: user }, { upsert: true, returnDocument: 'after' });
 		userMap.delete(req.query.p.toString());
 		if (result.ok) {
 			res.cookie('lp', result.value!._id.toString(), {

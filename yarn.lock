@@ -1235,13 +1235,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mongodb@npm:^3":
-  version: 3.6.12
-  resolution: "@types/mongodb@npm:3.6.12"
+"@types/mongodb@npm:^3.6.17":
+  version: 3.6.17
+  resolution: "@types/mongodb@npm:3.6.17"
   dependencies:
     "@types/bson": "*"
     "@types/node": "*"
-  checksum: 7e41e42a941a5c07cc45f83722e617f1e96942b27cabae8f06dd253ae86b420c1ca5c75e1de7bfbce787bb703714bc297bef45215ef1275815e8d355e03bc27c
+  checksum: c96504ab4b3a07d1bee2a9614c55ec12a035d4564999fb3f6bfdf61ccc71c24bcbaa2af2ae177de44a7b4987397794f51e067533de45db5e995aadc2a3764af8
   languageName: node
   linkType: hard
 
@@ -3441,7 +3441,7 @@ fsevents@~2.3.1:
     "@types/body-parser": ^1
     "@types/cookie-parser": ^1.4.2
     "@types/express": ^4.17.11
-    "@types/mongodb": ^3
+    "@types/mongodb": ^3.6.17
     "@types/multer": ^1
     "@types/node": ^13.9.2
     "@types/node-fetch": ^2.5.10
@@ -3462,7 +3462,7 @@ fsevents@~2.3.1:
     eslint-plugin-svelte3: ^3.2.0
     express: ^4.17.1
     hash-through: ^0.1.16
-    mongodb: ^3.6.6
+    mongodb: ^3.6.9
     mongodb-extjson: ^2.1.5
     multer: ^1.4.2
     node-fetch: ^2.6.1
@@ -3875,14 +3875,14 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"mongodb@npm:^3.6.6":
-  version: 3.6.6
-  resolution: "mongodb@npm:3.6.6"
+"mongodb@npm:^3.6.9":
+  version: 3.6.9
+  resolution: "mongodb@npm:3.6.9"
   dependencies:
     bl: ^2.2.1
     bson: ^1.1.4
     denque: ^1.4.1
-    optional-require: ^1.0.2
+    optional-require: ^1.0.3
     safe-buffer: ^5.1.2
     saslprep: ^1.0.0
   dependenciesMeta:
@@ -3901,7 +3901,7 @@ fsevents@~2.3.1:
       optional: true
     snappy:
       optional: true
-  checksum: 7c711f82269a98fc331e5d52d3ba02167446d7a44c54f0ab26072d708a804c5082e201abae85dcf01154ac73572e4e7f80f32c0b632b72e92e8e65857f553062
+  checksum: 146e218a293e59ce65a6cf8d4864790b169b489600e876877119f383ab1edaae87cb86475a0d40b90c18a774bb62e528967cfcf798901e5b9d2e672ef0d782c6
   languageName: node
   linkType: hard
 
@@ -4185,7 +4185,7 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"optional-require@npm:^1.0.2":
+"optional-require@npm:^1.0.3":
   version: 1.0.3
   resolution: "optional-require@npm:1.0.3"
   checksum: be8556c35b0f6f76ac3b34587f010ad8fc17f69d1afbd5198fb338c785ebbe8e3c96b5f5222a0853b2c8ab7bfe8127a4f4c795e8795d5656e31c8fd693780ba9
