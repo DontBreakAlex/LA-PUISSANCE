@@ -1,4 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import crypto from 'crypto';
 import { s3bucket, s3endpoint, s3region, s3secret, s3user } from '../../config.json';
@@ -95,5 +95,13 @@ export class S3Storage implements Storage {
 			throw new Error('Error handling file');
 		}
 		return resp.Body;
+	}
+
+	removeFile(filename: string): void {
+		const command = new DeleteObjectCommand({
+			Bucket,
+			Key: filename
+		});
+		client.send(command);
 	}
 }

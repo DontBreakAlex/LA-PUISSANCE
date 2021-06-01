@@ -74,4 +74,8 @@ export class CustomStorage implements Storage {
 	public getFileStream(filename: string): fs.ReadStream {
 		return fs.createReadStream(path.join(fileStoragePath, filename));
 	}
+
+	public removeFile(filename: string): void {
+		fs.unlink(path.join(fileStoragePath, filename), () => {});
+	}
 }

@@ -25,7 +25,7 @@
             <p>Loading...</p>
         {:then sounds}
             {#each sounds as sound}
-                <SoundCell {...sound}/>
+                <SoundCell {...sound} on:delete-success={updateSounds}/>
             {/each}
             <AddSound on:upload-success={updateSounds}/>
         {:catch error}

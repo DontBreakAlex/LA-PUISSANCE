@@ -18,6 +18,7 @@ const app = express();
 const client = new MongoClient(mongoUri, { useUnifiedTopology: true });
 // This map holds the user that are waiting to log in
 const userMap = new Map<string, User>();
+
 client.connect().then(async () => {
 	console.log('Connected to database !');
 
@@ -98,6 +99,30 @@ client.connect().then(async () => {
 			name: req.body.name
 		}, { });
 		res.send();
+	});
+
+	app.post('/delete', async (req, res) => {
+		const id = req.query.p;
+		if (typeof id != 'string') {
+			res.status(400).send();
+			return;
+		}
+		const deleted = await Files.findOneAndDelete({ _id: new ObjectId(id) });
+		if (!deleted.value) {
+			res.status(404).send();
+			return;
+		}
+		const aggregation = aggregationBuilder(deleted.value);
+		const result: any = await Files.aggregate(aggregation).next();
+		if (!result) {
+			res.status(500).send();
+			return;
+		}
+		if (aggregation[0].$facet.filename && !result.filename)
+			storage.removeFile(deleted.value.filename);
+		if (aggregation[0].$facet.image && !result.image)
+			storage.removeFile(deleted.value.image!);
+		res.status(200).send();
 	});
 
 	app.get('/list', async (req, res) => {
@@ -182,6 +207,43 @@ client.connect().then(async () => {
 
 function sendMessage(message: BotReceived) {
 	process.send!(message);
+}
+
+function aggregationBuilder(deleted: File) {
+	const agg: any = [{ $facet: {} }, { $project: {} }];
+	if (deleted.filename) {
+		agg[0].$facet.filename = [
+			{
+				$match: {
+					filename: deleted.filename
+				}
+			}, {
+				$count: 'filename'
+			}
+		];
+		agg[1].$project.filename = {
+			$arrayElemAt: [
+				'$filename.filename', 0
+			]
+		};
+	}
+	if (deleted.image) {
+		agg[0].$facet.image = [
+			{
+				$match: {
+					image: deleted.image
+				}
+			}, {
+				$count: 'image'
+			}
+		];
+		agg[1].$project.image = {
+			$arrayElemAt: [
+				'$image.image', 0
+			]
+		};
+	}
+	return agg;
 }
 
 declare global {

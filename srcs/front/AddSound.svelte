@@ -42,31 +42,34 @@
 			selectedSound = defaultText;
 		}
 	}
+
 	function handleImageChange(e: any) {
 		try {
-			selectedImage= e.target.files[0].name;
+			selectedImage = e.target.files[0].name;
 		} catch {
 			selectedImage = defaultText;
 		}
 	}
 </script>
 
-<GridCell on:click={open}>
-    <img src="Add.svg" alt="Add">
-</GridCell>
+<div class="content-cell">
+	<GridCell on:click={open}>
+		<img src="Add.svg" alt="Add">
+	</GridCell>
+</div>
 
 <DialogOverlay {isOpen} onDismiss={close} class="overlay">
-    <DialogContent aria-label="File uploader" class="content">
-        <h2>Add a sound</h2>
-        <form action="upload" method="post" enctype="multipart/form-data" on:submit={handleSubmit}>
-            <label>
+	<DialogContent aria-label="File uploader" class="content">
+		<h2>Add a sound</h2>
+		<form action="upload" method="post" enctype="multipart/form-data" on:submit={handleSubmit}>
+			<label>
 				<span>Sound name:</span><input type="text" name="name" class="custom-input" required/>
-            </label>
-            <label>
-                Sound file:
-                <input type="file" name="sound" accept="audio/mpeg" on:change="{handleSoundChange}" required/>
-                <span class="custom-input">{selectedSound}</span>
-            </label>
+			</label>
+			<label>
+				Sound file:
+				<input type="file" name="sound" accept="audio/mpeg" on:change="{handleSoundChange}" required/>
+				<span class="custom-input">{selectedSound}</span>
+			</label>
 			<label>
 				Thumbnail:
 				<input type="file" name="image" accept="image/*" on:change="{handleImageChange}"/>
@@ -74,11 +77,11 @@
 			</label>
 			<div class="spacer"></div>
 			<div class="lastRow">
-                <button on:click={close}>Cancel</button>
-                <input type="submit" value="Upload">
-            </div>
-        </form>
-    </DialogContent>
+				<button on:click={close}>Cancel</button>
+				<input type="submit" value="Upload">
+			</div>
+		</form>
+	</DialogContent>
 </DialogOverlay>
 
 <style>
@@ -88,17 +91,22 @@
         height: auto;
     }
 
-	@media (max-width: 500px) {
+    @media (max-width: 500px) {
         :global([data-svelte-dialog-content].content) {
-			margin: 15vh 3vh auto;
-			width: auto;
-			padding: 3vh;
+            margin: 15vh 3vh auto;
+            width: auto;
+            padding: 3vh;
         }
-	}
+    }
 
     :global([data-svelte-dialog-content].content) {
         background: hsl(220, 8%, 30%);
-		font-family: IBMPlexSans, Arial, sans-serif;
+        font-family: IBMPlexSans, Arial, sans-serif;
+        position: relative;
+    }
+
+    :global([data-svelte-dialog-overlay].overlay) {
+        z-index: 99;
     }
 
     h2 {
@@ -123,7 +131,7 @@
         justify-content: center;
         align-items: center;
         color: white;
-		white-space: nowrap;
+        white-space: nowrap;
     }
 
     input, input + span {
@@ -135,7 +143,7 @@
         justify-content: center;
         cursor: pointer;
         overflow: hidden;
-		margin: 0;
+        margin: 0;
     }
 
     input[type=file]:focus + span {
@@ -152,7 +160,7 @@
         color: white;
         padding-left: 0.3em;
         padding-right: 0.3em;
-		min-width: 5em;
+        min-width: 5em;
     }
 
     .custom-input:hover {
@@ -182,30 +190,30 @@
         flex-grow: 1;
     }
 
-	button, input[type=submit] {
-		background-color: #cccccc;
-		border-radius: 1.5em;
+    button, input[type=submit] {
+        background-color: #cccccc;
+        border-radius: 1.5em;
         padding: 0.5em 1em;
-		text-align: center;
-		outline: none;
-		color: black;
-		border: none;
+        text-align: center;
+        outline: none;
+        color: black;
+        border: none;
         font-family: IBMPlexSans, Arial, sans-serif;
-		display: block;
-		height: 150%;
-		width: max(20%, 5em);
+        display: block;
+        height: 150%;
+        width: max(20%, 5em);
         transition: background-color .17s ease;
     }
 
     button:hover, input[type=submit]:hover {
-		background-color: white;
+        background-color: white;
     }
 
     button:focus, input[type=submit]:focus {
         background-color: white;
     }
 
-	label > span {
-		margin: 0;
-	}
+    label > span {
+        margin: 0;
+    }
 </style>
