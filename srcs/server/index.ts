@@ -53,7 +53,8 @@ client.connect().then(async () => {
 			res.cookie('lp', result.value!._id.toString(), {
 				secure: protocol == 'https',
 				httpOnly: true,
-				sameSite: 'strict'
+				sameSite: 'strict',
+				maxAge: 7890000
 			}).redirect('/');
 		} else {
 			res.status(500).send('<h1>Internal error</h1>');
