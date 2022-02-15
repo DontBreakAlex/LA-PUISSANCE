@@ -66,7 +66,7 @@ export class S3Storage implements Storage {
 				size: buffer.length,
 				filename
 			});
-		} catch (e) {
+		} catch (e: any) {
 			cb(e);
 		}
 	}

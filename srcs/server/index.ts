@@ -15,7 +15,7 @@ try {
 	mkdirSync(fileStoragePath, { recursive: true });
 } catch {}
 const app = express();
-const client = new MongoClient(mongoUri, { useUnifiedTopology: true });
+const client = new MongoClient(mongoUri, {});
 // This map holds the user that are waiting to log in
 const userMap = new Map<string, User>();
 
@@ -87,8 +87,8 @@ client.connect().then(async () => {
 			res.status(400).send();
 			return;
 		}
-		const sound = req.files.sound?.[0]?.filename;
-		const image = req.files.image?.[0]?.filename;
+		const sound = req.files?.sound?.[0]?.filename;
+		const image = req.files?.image?.[0]?.filename;
 		if (!sound || !req.body.name) {
 			res.status(400).send();
 			return;
@@ -155,7 +155,7 @@ client.connect().then(async () => {
 				const stream = await storage.getFileStream(image);
 				res.set('Cache-Control', 'private, max-age=31536000, immutable');
 				stream.pipe(res);
-			} catch (e) {
+			} catch (e: any) {
 				console.error(e.toString());
 				res.status(500).send();
 			}

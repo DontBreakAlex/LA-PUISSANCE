@@ -28,8 +28,8 @@ class Play extends Command {
 				try {
 					message.guild.status.queue.push(await player.clone(message, array, message.channel));
 					message.guild.status.queue.play(message.channel, message.member);
-				} catch (e) {
-					const send = typeof e === 'string' ? e : e.message;
+				} catch (e: any) {
+					const send = typeof e === 'string' ? e : e;
 					message.channel.send(send);
 				}
 				break;
