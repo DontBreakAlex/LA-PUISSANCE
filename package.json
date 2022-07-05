@@ -14,7 +14,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.16.0",
     "@aws-sdk/s3-request-presigner": "^3.17.0",
-    "@discordjs/opus": "^0.1.0",
+    "@discordjs/opus": "^0.8.0",
     "@types/express": "^4.17.11",
     "@types/node": "^13.9.2",
     "@types/ws": "^7.2.3",
